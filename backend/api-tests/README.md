@@ -35,10 +35,9 @@ robot tests/
 
 ### Run Specific Test Suite
 ```bash
-robot tests/user_api_tests.robot
+robot tests/auth_api_tests.robot
 robot tests/todolist_api_tests.robot
 robot tests/todoitem_api_tests.robot
-robot tests/auth_api_tests.robot
 ```
 
 ### Run Tests with Tags

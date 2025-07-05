@@ -40,8 +40,8 @@ Open `localhost` in a browser.
 
 In the project directory, run 
 
-```
-docker compose -f compose.dev.yml up
+```docker compose -f compose.dev.yml up
+
 ```
 
 Open `localhost:4321` in a browser.

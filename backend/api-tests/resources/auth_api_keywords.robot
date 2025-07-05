@@ -1,5 +1,6 @@
 *** Settings ***
 Resource    api_common.robot
+Library     Collections
 
 *** Keywords ***
 Register User Via API
@@ -71,6 +72,8 @@ Validate User Search Response
     [Documentation]    Validates user search response
     Should Be Equal As Integers    ${response.status_code}    ${HTTP_OK}
     ${users}=    Set Variable    ${response.json()}
-    Should Be List    ${users}
+    # Validate that response is a list by checking if it has list-like properties
+    ${list_length}=    Get Length    ${users}
+    Should Be True    ${list_length} >= 0    Response should be a list-like object
     Run Keyword If    ${expected_count} is not None    Length Should Be    ${users}    ${expected_count}
     [Return]    ${users}

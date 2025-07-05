@@ -4,6 +4,7 @@ Library           Collections
 Library           String
 Library           JSONLibrary
 Library           Process
+Library           BuiltIn
 Resource          ../variables/api_config.robot
 Resource          ../variables/api_test_data.robot
 
@@ -21,7 +22,8 @@ Teardown API Test Session
 Generate Unique Username
     [Documentation]    Generates a unique username for testing
     ${timestamp}=    Get Time    epoch
-    ${unique_username}=    Set Variable    apiuser${timestamp}
+    ${random}=    Evaluate    random.randint(1000, 9999)    random
+    ${unique_username}=    Set Variable    apiuser${timestamp}${random}
     [Return]    ${unique_username}
 
 Generate Unique List Name
@@ -77,7 +79,7 @@ Create Auth Headers
     [Return]    ${headers}
 
 Validate JSON Response
-    [Arguments]    ${response}    ${expected_fields}
+    [Arguments]    ${response}    @{expected_fields}
     [Documentation]    Validates that response contains expected JSON fields
     Should Be Equal As Strings    ${response.headers['Content-Type']}    ${CONTENT_TYPE_JSON}
     ${json_data}=    Set Variable    ${response.json()}
