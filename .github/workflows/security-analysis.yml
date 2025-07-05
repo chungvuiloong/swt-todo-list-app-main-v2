@@ -165,83 +165,32 @@ jobs:
         retention-days: 30
 
   performance-tests:
-    name: Basic Performance Tests
+    name: Basic Performance Tests  
     runs-on: ubuntu-latest
-    
-    services:
-      postgres:
-        image: postgres:16.0
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
-          POSTGRES_DB: todo-app
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Install backend dependencies
-      working-directory: ./backend
+    - name: Create environment files
       run: |
-        pip install poetry
-        poetry config virtualenvs.create false
-        poetry install --no-root
-
-    - name: Wait for database to be ready
-      run: |
-        echo "Waiting for PostgreSQL to be ready..."
-        for i in {1..30}; do
-          if pg_isready -h localhost -p 5432 -U postgres; then
-            echo "PostgreSQL is ready!"
-            break
-          fi
-          echo "Attempt $i: PostgreSQL not ready, waiting 2 seconds..."
-          sleep 2
-        done
-
-    - name: Set up database schema
-      env:
-        DATABASE_URL: postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app
-        PGPASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
-      run: |
-        # Install required tools
-        pip install asyncpg
-        sudo apt-get install -y postgresql-client
+        # Ensure environment files exist
+        mkdir -p database backend
+        echo "POSTGRES_USER=postgres" > database/.dev.env
+        echo "POSTGRES_PASSWORD=840fb30f-e424-4a97-b58c-ef4433ebca85" >> database/.dev.env
+        echo "POSTGRES_DB=todo-app" >> database/.dev.env
+        echo "DATABASE_URL=postgresql://\${POSTGRES_USER}:\${POSTGRES_PASSWORD}@database:5432/\${POSTGRES_DB}" >> database/.dev.env
         
-        # Create database schema using psql (simpler than Python)
-        psql -h localhost -p 5432 -U postgres -d todo-app -c "
-          CREATE TABLE IF NOT EXISTS todo_list_roles (
-            id SERIAL PRIMARY KEY, 
-            name VARCHAR NOT NULL, 
-            created TIMESTAMP DEFAULT NOW(), 
-            updated TIMESTAMP DEFAULT NOW()
-          );
-          INSERT INTO todo_list_roles (name) VALUES ('owner'), ('editor'), ('viewer') 
-          ON CONFLICT DO NOTHING;
-        " || echo "Database schema setup completed"
+        echo "SECRET_KEY=test-secret-key-for-ci" > backend/.dev.env
+        echo "TOKEN_ENCRYPTION_ALGORITHM=HS256" >> backend/.dev.env
+        echo "ACCESS_TOKEN_EXPIRE_MINUTES=1440" >> backend/.dev.env
+        echo "REFRESH_TOKEN_EXPIRE_DAYS=30" >> backend/.dev.env
 
-    - name: Start backend service
-      working-directory: ./backend
-      env:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
-        POSTGRES_DB: todo-app
-        DATABASE_URL: postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app
-        SECRET_KEY: "test-secret-key-for-ci"
+    - name: Start application with Docker Compose
       run: |
-        nohup python -m uvicorn src.main:app --host 0.0.0.0 --port 4322 &
+        echo "Starting services with health checks..."
+        docker compose -f compose.dev.yml up -d --wait
+        echo "Services started, waiting for full initialization..."
         sleep 15
 
     - name: Install Apache Bench
@@ -249,50 +198,30 @@ jobs:
 
     - name: Wait for API to be ready
       run: |
-        echo "Waiting for backend service to start..."
+        echo "Checking service status..."
+        docker compose -f compose.dev.yml ps
+        
+        echo "Waiting for backend API to be ready..."
         for i in {1..30}; do
           if curl -f http://localhost:4322/health 2>/dev/null; then
-            echo "✅ Backend service is running!"
+            echo "✅ Backend API is ready!"
             break
           fi
-          echo "Attempt $i: Backend service not ready, waiting 2 seconds..."
+          echo "Attempt $i: Backend not ready, waiting 2 seconds..."
           sleep 2
         done
         
-        echo "Waiting for database-dependent API endpoints..."
-        for i in {1..30}; do
-          if curl -f http://localhost:4322/api/todo-lists/roles 2>/dev/null; then
-            echo "✅ Backend API with database is ready!"
-            break
-          fi
-          echo "Attempt $i: Database API not ready, waiting 2 seconds..."
-          sleep 2
-        done
-        
-        # Final verification with detailed logging
-        echo "🔍 Final health verification:"
-        
+        # Final verification
         if ! curl -f http://localhost:4322/health; then
-          echo "❌ Basic health check failed"
-          echo "Backend process status:"
-          ps aux | grep uvicorn || echo "No uvicorn process found"
-          echo "Port 4322 status:"
-          netstat -tlnp | grep 4322 || echo "Port 4322 not listening"
-          echo "Backend logs (last 20 lines):"
-          tail -20 nohup.out 2>/dev/null || echo "No backend logs found"
+          echo "❌ API health check failed"
+          echo "Docker service status:"
+          docker compose -f compose.dev.yml ps
+          echo "Backend logs:"
+          docker compose -f compose.dev.yml logs backend
           exit 1
         fi
         
-        if ! curl -f http://localhost:4322/api/todo-lists/roles; then
-          echo "❌ Database API check failed"
-          echo "Database connection test:"
-          pg_isready -h localhost -p 5432 -U postgres || echo "Database not ready"
-          echo "Trying to connect to database directly:"
-          PGPASSWORD=840fb30f-e424-4a97-b58c-ef4433ebca85 psql -h localhost -p 5432 -U postgres -d todo-app -c "SELECT COUNT(*) FROM todo_list_roles;" || echo "Database query failed"
-          exit 1
-        fi
-        
-        echo "✅ All health checks passed!"
+        echo "✅ Backend API is ready for performance testing!"
 
     - name: Run Basic Load Test
       run: |
