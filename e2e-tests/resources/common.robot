@@ -3,6 +3,7 @@ Library           SeleniumLibrary
 Library           Collections
 Library           String
 Library           Process
+Library           RequestsLibrary
 Resource          ../variables/config.robot
 Resource          ../variables/test_data.robot
 
@@ -17,6 +18,14 @@ Open Browser To Application
     Open Browser    ${BASE_URL}    ${BROWSER}    options=${chrome_options}
     Set Selenium Implicit Wait    ${IMPLICIT_WAIT}
     Maximize Browser Window
+
+Open Browser To Application And Navigate To Home
+    [Documentation]    Opens browser, navigates to application and waits for it to load
+    Open Browser To Application
+    Wait For Page To Load
+    Log    Current URL: ${EMPTY}
+    ${current_url}=    Get Location
+    Log    Current URL: ${current_url}
 
 Close Browser Session
     [Documentation]    Closes the browser session
@@ -47,6 +56,7 @@ Clear Application Data
     Run Process    docker    compose    -f    compose.dev.yml    down    shell=True    cwd=${EXECDIR}/..
     Run Process    docker    compose    -f    compose.dev.yml    up    -d    shell=True    cwd=${EXECDIR}/..
     Sleep    15s    # Wait for services to start
+    Wait For Application To Start
 
 Wait For Application To Start
     [Documentation]    Waits for the application to be ready

@@ -10,8 +10,12 @@ Navigate To Login Page
 
 Navigate To Register Page
     [Documentation]    Navigates to the registration page
+    Log    Navigating to registration URL: ${REGISTER_URL}
     Go To    ${REGISTER_URL}
     Wait For Page To Load
+    ${current_url}=    Get Location
+    Log    Current URL after navigation: ${current_url}
+    Log Page Source
     Page Should Contain Element    css:form[data-testid="register-form"]
 
 Fill Login Form

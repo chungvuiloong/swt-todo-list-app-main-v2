@@ -3,7 +3,7 @@ Documentation     Authentication related test cases
 Resource          ../resources/common.robot
 Resource          ../resources/auth_keywords.robot
 Suite Setup       Clear Application Data
-Test Setup        Open Browser To Application
+Test Setup        Open Browser To Application And Navigate To Home
 Test Teardown     Close Browser Session
 Test Tags         auth
 
