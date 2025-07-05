@@ -60,44 +60,68 @@ jobs:
 
     - name: Start application with Docker Compose
       run: |
-        docker compose -f compose.dev.yml up -d
-        echo "Waiting for services to start..."
-        sleep 30
+        echo "Starting services with health checks..."
+        docker compose -f compose.dev.yml up -d --wait
+        echo "Services started, waiting for full initialization..."
+        sleep 15
 
     - name: Wait for services to be ready
       run: |
+        echo "📊 Service status:"
+        docker compose -f compose.dev.yml ps
+        
+        echo "Waiting for database to be ready..."
+        for i in {1..30}; do
+          if docker compose -f compose.dev.yml exec -T database pg_isready -U postgres; then
+            echo "Database is ready!"
+            break
+          fi
+          echo "Attempt $i: Database not ready, waiting 2 seconds..."
+          sleep 2
+        done
+        
+        echo "Waiting for backend API to be ready..."
+        for i in {1..60}; do
+          if curl -f http://localhost:4322/api/todo-lists/roles 2>/dev/null; then
+            echo "Backend API is ready!"
+            break
+          fi
+          echo "Attempt $i: Backend not ready, waiting 2 seconds..."
+          sleep 2
+        done
+        
         echo "Waiting for frontend to be ready..."
         for i in {1..30}; do
-          if curl -f http://localhost:4321; then
+          if curl -f http://localhost:4321 2>/dev/null; then
             echo "Frontend is ready!"
             break
           fi
-          echo "Attempt $i: Frontend not ready, waiting 5 seconds..."
-          sleep 5
+          echo "Attempt $i: Frontend not ready, waiting 2 seconds..."
+          sleep 2
         done
         
-        echo "Waiting for API to be ready..."
-        for i in {1..30}; do
-          if curl -f http://localhost:4322/api/todo-lists/roles; then
-            echo "API is ready!"
-            break
-          fi
-          echo "Attempt $i: API not ready, waiting 5 seconds..."
-          sleep 5
-        done
+        # Final verification with detailed logging
+        echo "🔍 Final service verification..."
         
-        # Final checks
-        curl -f http://localhost:4321 || {
-          echo "Frontend health check failed"
+        if ! curl -f http://localhost:4322/api/todo-lists/roles; then
+          echo "❌ Backend API health check failed"
+          echo "📋 Backend logs:"
+          docker compose -f compose.dev.yml logs backend
+          echo "📋 Database logs:"
+          docker compose -f compose.dev.yml logs database
+          echo "🔍 Network test:"
+          curl -v http://localhost:4322/api/todo-lists/roles || true
+          exit 1
+        fi
+        
+        if ! curl -f http://localhost:4321; then
+          echo "❌ Frontend health check failed"
+          echo "📋 Frontend logs:"
           docker compose -f compose.dev.yml logs frontend
           exit 1
-        }
+        fi
         
-        curl -f http://localhost:4322/api/todo-lists/roles || {
-          echo "API health check failed"
-          docker compose -f compose.dev.yml logs backend
-          exit 1
-        }
+        echo "✅ All services are ready!"
 
     - name: Run API Smoke Tests
       working-directory: ./backend/api-tests

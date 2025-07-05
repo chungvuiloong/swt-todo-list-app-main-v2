@@ -17,6 +17,9 @@ RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
 # runtime 
 FROM python:3.12-alpine as runtime
 
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
 ENV VIRTUAL_ENV=/srv/.venv \

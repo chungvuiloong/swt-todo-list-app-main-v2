@@ -1,5 +1,8 @@
 FROM node:lts-alpine3.19
 
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
 ENV PATH /app/node_modules/.bin:$PATH
