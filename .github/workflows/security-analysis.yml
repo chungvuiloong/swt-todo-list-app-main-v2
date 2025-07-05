@@ -199,6 +199,39 @@ jobs:
         poetry config virtualenvs.create false
         poetry install --no-root
 
+    - name: Wait for database to be ready
+      run: |
+        echo "Waiting for PostgreSQL to be ready..."
+        for i in {1..30}; do
+          if pg_isready -h localhost -p 5432 -U postgres; then
+            echo "PostgreSQL is ready!"
+            break
+          fi
+          echo "Attempt $i: PostgreSQL not ready, waiting 2 seconds..."
+          sleep 2
+        done
+
+    - name: Set up database schema
+      env:
+        DATABASE_URL: postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app
+      run: |
+        # Install asyncpg for database operations
+        pip install asyncpg
+        # Create database schema (simplified version)
+        python -c "
+import asyncio
+import asyncpg
+
+async def setup_db():
+    conn = await asyncpg.connect('postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app')
+    # Create basic schema for roles if needed
+    await conn.execute('CREATE TABLE IF NOT EXISTS todo_list_roles (id SERIAL PRIMARY KEY, name VARCHAR NOT NULL, created TIMESTAMP DEFAULT NOW(), updated TIMESTAMP DEFAULT NOW())')
+    await conn.execute(\"INSERT INTO todo_list_roles (name) VALUES ('owner'), ('editor'), ('viewer') ON CONFLICT DO NOTHING\")
+    await conn.close()
+
+asyncio.run(setup_db())
+        "
+
     - name: Start backend service
       working-directory: ./backend
       env:
@@ -209,14 +242,57 @@ jobs:
         SECRET_KEY: "test-secret-key-for-ci"
       run: |
         nohup python -m uvicorn src.main:app --host 0.0.0.0 --port 4322 &
-        sleep 10
+        sleep 15
 
     - name: Install Apache Bench
       run: sudo apt-get install -y apache2-utils
 
     - name: Wait for API to be ready
       run: |
-        timeout 60 bash -c 'until curl -f http://localhost:4322/api/todo-lists/roles; do sleep 2; done'
+        echo "Waiting for backend service to start..."
+        for i in {1..30}; do
+          if curl -f http://localhost:4322/health 2>/dev/null; then
+            echo "✅ Backend service is running!"
+            break
+          fi
+          echo "Attempt $i: Backend service not ready, waiting 2 seconds..."
+          sleep 2
+        done
+        
+        echo "Waiting for database-dependent API endpoints..."
+        for i in {1..30}; do
+          if curl -f http://localhost:4322/api/todo-lists/roles 2>/dev/null; then
+            echo "✅ Backend API with database is ready!"
+            break
+          fi
+          echo "Attempt $i: Database API not ready, waiting 2 seconds..."
+          sleep 2
+        done
+        
+        # Final verification with detailed logging
+        echo "🔍 Final health verification:"
+        
+        if ! curl -f http://localhost:4322/health; then
+          echo "❌ Basic health check failed"
+          echo "Backend process status:"
+          ps aux | grep uvicorn || echo "No uvicorn process found"
+          echo "Port 4322 status:"
+          netstat -tlnp | grep 4322 || echo "Port 4322 not listening"
+          echo "Backend logs (last 20 lines):"
+          tail -20 nohup.out 2>/dev/null || echo "No backend logs found"
+          exit 1
+        fi
+        
+        if ! curl -f http://localhost:4322/api/todo-lists/roles; then
+          echo "❌ Database API check failed"
+          echo "Database connection test:"
+          pg_isready -h localhost -p 5432 -U postgres || echo "Database not ready"
+          echo "Trying to connect to database directly:"
+          PGPASSWORD=840fb30f-e424-4a97-b58c-ef4433ebca85 psql -h localhost -p 5432 -U postgres -d todo-app -c "SELECT COUNT(*) FROM todo_list_roles;" || echo "Database query failed"
+          exit 1
+        fi
+        
+        echo "✅ All health checks passed!"
 
     - name: Run Basic Load Test
       run: |

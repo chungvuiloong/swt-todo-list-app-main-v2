@@ -48,3 +48,9 @@ app.add_middleware(
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(_request: Request, exception: RequestValidationError):
     return JSONResponse(content={"detail": str(exception)}, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+
+@app.get("/health")
+async def health_check():
+    """Simple health check endpoint that doesn't require database access"""
+    return {"status": "healthy", "service": "todo-api"}

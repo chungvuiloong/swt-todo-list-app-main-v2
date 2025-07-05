@@ -80,13 +80,23 @@ jobs:
           sleep 2
         done
         
-        echo "Waiting for backend API to be ready..."
-        for i in {1..60}; do
-          if curl -f http://localhost:4322/api/todo-lists/roles 2>/dev/null; then
-            echo "Backend API is ready!"
+        echo "Waiting for backend service to start..."
+        for i in {1..30}; do
+          if curl -f http://localhost:4322/health 2>/dev/null; then
+            echo "Backend service is running!"
             break
           fi
-          echo "Attempt $i: Backend not ready, waiting 2 seconds..."
+          echo "Attempt $i: Backend service not ready, waiting 2 seconds..."
+          sleep 2
+        done
+        
+        echo "Waiting for database-dependent API endpoints..."
+        for i in {1..30}; do
+          if curl -f http://localhost:4322/api/todo-lists/roles 2>/dev/null; then
+            echo "Backend API with database is ready!"
+            break
+          fi
+          echo "Attempt $i: Database API not ready, waiting 2 seconds..."
           sleep 2
         done
         
