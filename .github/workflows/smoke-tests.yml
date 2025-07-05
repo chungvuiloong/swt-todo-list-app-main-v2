@@ -131,26 +131,26 @@ jobs:
         echo "### API Smoke Tests" >> $GITHUB_STEP_SUMMARY
         if [ -f backend/api-tests/results-api-smoke/output.xml ]; then
           python -c "
-          import xml.etree.ElementTree as ET
-          tree = ET.parse('backend/api-tests/results-api-smoke/output.xml')
-          suite = tree.getroot()
-          total = suite.find('.//statistics/total/stat[@pass]')
-          if total is not None:
-              print(f'✅ API Passed: {total.get(\"pass\")}')
-              print(f'❌ API Failed: {total.get(\"fail\")}')
+import xml.etree.ElementTree as ET
+tree = ET.parse('backend/api-tests/results-api-smoke/output.xml')
+suite = tree.getroot()
+total = suite.find('.//statistics/total/stat[@pass]')
+if total is not None:
+    print(f'✅ API Passed: {total.get(\"pass\")}')
+    print(f'❌ API Failed: {total.get(\"fail\")}')
           " >> $GITHUB_STEP_SUMMARY
         fi
         
         echo "### E2E Smoke Tests" >> $GITHUB_STEP_SUMMARY
         if [ -f e2e-tests/results-e2e-smoke/output.xml ]; then
           python -c "
-          import xml.etree.ElementTree as ET
-          tree = ET.parse('e2e-tests/results-e2e-smoke/output.xml')
-          suite = tree.getroot()
-          total = suite.find('.//statistics/total/stat[@pass]')
-          if total is not None:
-              print(f'✅ E2E Passed: {total.get(\"pass\")}')
-              print(f'❌ E2E Failed: {total.get(\"fail\")}')
+import xml.etree.ElementTree as ET
+tree = ET.parse('e2e-tests/results-e2e-smoke/output.xml')
+suite = tree.getroot()
+total = suite.find('.//statistics/total/stat[@pass]')
+if total is not None:
+    print(f'✅ E2E Passed: {total.get(\"pass\")}')
+    print(f'❌ E2E Failed: {total.get(\"fail\")}')
           " >> $GITHUB_STEP_SUMMARY
         fi
 
