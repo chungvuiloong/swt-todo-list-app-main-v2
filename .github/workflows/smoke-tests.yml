@@ -166,8 +166,3 @@ EOF
       run: |
         docker compose -f compose.dev.yml down
         docker compose -f compose.dev.yml down --volumes
-
-      if: always()
-      run: |
-        docker compose -f compose.dev.yml down
-        docker compose -f compose.dev.yml down --volumes
