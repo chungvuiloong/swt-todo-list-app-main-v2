@@ -218,7 +218,7 @@ jobs:
         # Install asyncpg for database operations
         pip install asyncpg
         # Create database schema (simplified version)
-        python -c "
+        python -c "$(cat <<'EOF'
 import asyncio
 import asyncpg
 
@@ -226,11 +226,12 @@ async def setup_db():
     conn = await asyncpg.connect('postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app')
     # Create basic schema for roles if needed
     await conn.execute('CREATE TABLE IF NOT EXISTS todo_list_roles (id SERIAL PRIMARY KEY, name VARCHAR NOT NULL, created TIMESTAMP DEFAULT NOW(), updated TIMESTAMP DEFAULT NOW())')
-    await conn.execute(\"INSERT INTO todo_list_roles (name) VALUES ('owner'), ('editor'), ('viewer') ON CONFLICT DO NOTHING\")
+    await conn.execute("INSERT INTO todo_list_roles (name) VALUES ('owner'), ('editor'), ('viewer') ON CONFLICT DO NOTHING")
     await conn.close()
 
 asyncio.run(setup_db())
-        "
+EOF
+        )"
 
     - name: Start backend service
       working-directory: ./backend
