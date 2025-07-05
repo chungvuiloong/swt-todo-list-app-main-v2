@@ -21,21 +21,21 @@ Create Todo Item Via API
     ${json_data}=    Run Keyword If    '${due_date}' == '${EMPTY}'    Set Variable    {"description": "${description}"}
     ...    ELSE    Set Variable    {"description": "${description}", "due_date": "${due_date}"}
     ${response}=    Make POST Request    /api/todo-lists/${list_id}/todos    ${json_data}    ${headers}    ${expected_status}
-    [Return]    ${response}
+    RETURN    ${response}
 
 Get Todo Items Via API
     [Arguments]    ${list_id}    ${token}    ${expected_status}=${HTTP_OK}
     [Documentation]    Gets todo items for a list via API
     ${headers}=    Create Auth Headers    ${token}
     ${response}=    Make GET Request    /api/todo-lists/${list_id}/todos    ${headers}    ${expected_status}
-    [Return]    ${response}
+    RETURN    ${response}
 
 Get Todo Item By ID Via API
     [Arguments]    ${list_id}    ${item_id}    ${token}    ${expected_status}=${HTTP_OK}
     [Documentation]    Gets a specific todo item by ID via API
     ${headers}=    Create Auth Headers    ${token}
     ${response}=    Make GET Request    /api/todo-lists/${list_id}/todos/${item_id}    ${headers}    ${expected_status}
-    [Return]    ${response}
+    RETURN    ${response}
 
 Update Todo Item Via API
     [Arguments]    ${list_id}    ${item_id}    ${description}    ${completed}    ${token}    ${expected_status}=${HTTP_OK}
@@ -43,14 +43,14 @@ Update Todo Item Via API
     ${headers}=    Create Auth Headers    ${token}
     ${json_data}=    Set Variable    {"description": "${description}", "completed": ${completed}}
     ${response}=    Make PUT Request    /api/todo-lists/${list_id}/todos/${item_id}    ${json_data}    ${headers}    ${expected_status}
-    [Return]    ${response}
+    RETURN    ${response}
 
 Delete Todo Item Via API
     [Arguments]    ${list_id}    ${item_id}    ${token}    ${expected_status}=${HTTP_OK}
     [Documentation]    Deletes a todo item via API
     ${headers}=    Create Auth Headers    ${token}
     ${response}=    Make DELETE Request    /api/todo-lists/${list_id}/todos/${item_id}    ${headers}    ${expected_status}
-    [Return]    ${response}
+    RETURN    ${response}
 
 Validate Todo Item Response
     [Arguments]    ${response}    ${expected_description}=${EMPTY}
@@ -58,7 +58,7 @@ Validate Todo Item Response
     Should Be Equal As Integers    ${response.status_code}    ${HTTP_OK}
     ${json_data}=    Validate JSON Response    ${response}    ${ITEM_ID_FIELD}    ${ITEM_DESCRIPTION_FIELD}    ${ITEM_COMPLETED_FIELD}    author_id    todo_list_id    created    updated
     Run Keyword If    '${expected_description}' != '${EMPTY}'    Should Be Equal As Strings    ${json_data['${ITEM_DESCRIPTION_FIELD}']}    ${expected_description}
-    [Return]    ${json_data}
+    RETURN    ${json_data}
 
 *** Test Cases ***
 Create Todo Item Succeeds With Valid Data

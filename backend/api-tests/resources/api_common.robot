@@ -24,59 +24,59 @@ Generate Unique Username
     ${timestamp}=    Get Time    epoch
     ${random}=    Evaluate    random.randint(1000, 9999)    random
     ${unique_username}=    Set Variable    apiuser${timestamp}${random}
-    [Return]    ${unique_username}
+    RETURN    ${unique_username}
 
 Generate Unique List Name
     [Documentation]    Generates a unique list name for testing
     ${timestamp}=    Get Time    epoch
     ${unique_name}=    Set Variable    API List ${timestamp}
-    [Return]    ${unique_name}
+    RETURN    ${unique_name}
 
 Generate JSON With Unique Username
     [Documentation]    Generates JSON with unique username for registration
     ${unique_username}=    Generate Unique Username
     ${json_data}=    Set Variable    {"username": "${unique_username}", "password": "${TEST_USER_PASSWORD}"}
-    [Return]    ${json_data}    ${unique_username}
+    RETURN    ${json_data}    ${unique_username}
 
 Make GET Request
     [Arguments]    ${endpoint}    ${headers}=${EMPTY}    ${expected_status}=${HTTP_OK}
     [Documentation]    Makes a GET request and validates status code
     ${response}=    GET On Session    ${TEST_SESSION}    ${endpoint}    headers=${headers}    expected_status=any
     Should Be Equal As Integers    ${response.status_code}    ${expected_status}
-    [Return]    ${response}
+    RETURN    ${response}
 
 Make POST Request
     [Arguments]    ${endpoint}    ${data}    ${headers}=${EMPTY}    ${expected_status}=${HTTP_CREATED}
     [Documentation]    Makes a POST request and validates status code
     ${response}=    POST On Session    ${TEST_SESSION}    ${endpoint}    data=${data}    headers=${headers}    expected_status=any
     Should Be Equal As Integers    ${response.status_code}    ${expected_status}
-    [Return]    ${response}
+    RETURN    ${response}
 
 Make PUT Request
     [Arguments]    ${endpoint}    ${data}    ${headers}=${EMPTY}    ${expected_status}=${HTTP_OK}
     [Documentation]    Makes a PUT request and validates status code
     ${response}=    PUT On Session    ${TEST_SESSION}    ${endpoint}    data=${data}    headers=${headers}    expected_status=any
     Should Be Equal As Integers    ${response.status_code}    ${expected_status}
-    [Return]    ${response}
+    RETURN    ${response}
 
 Make DELETE Request
     [Arguments]    ${endpoint}    ${headers}=${EMPTY}    ${expected_status}=${HTTP_OK}
     [Documentation]    Makes a DELETE request and validates status code
     ${response}=    DELETE On Session    ${TEST_SESSION}    ${endpoint}    headers=${headers}    expected_status=any
     Should Be Equal As Integers    ${response.status_code}    ${expected_status}
-    [Return]    ${response}
+    RETURN    ${response}
 
 Create Default Headers
     [Documentation]    Creates default headers for JSON requests
     ${headers}=    Create Dictionary    Content-Type=${CONTENT_TYPE_JSON}    Accept=${ACCEPT_JSON}
-    [Return]    ${headers}
+    RETURN    ${headers}
 
 Create Auth Headers
     [Arguments]    ${token}
     [Documentation]    Creates headers with authorization token
     ${headers}=    Create Default Headers
     Set To Dictionary    ${headers}    Authorization=Bearer ${token}
-    [Return]    ${headers}
+    RETURN    ${headers}
 
 Validate JSON Response
     [Arguments]    ${response}    @{expected_fields}
@@ -86,7 +86,7 @@ Validate JSON Response
     FOR    ${field}    IN    @{expected_fields}
         Dictionary Should Contain Key    ${json_data}    ${field}
     END
-    [Return]    ${json_data}
+    RETURN    ${json_data}
 
 Validate Error Response
     [Arguments]    ${response}    ${expected_message}=${EMPTY}
@@ -94,7 +94,7 @@ Validate Error Response
     ${json_data}=    Set Variable    ${response.json()}
     Dictionary Should Contain Key    ${json_data}    detail
     Run Keyword If    '${expected_message}' != '${EMPTY}'    Should Contain    ${json_data['detail']}    ${expected_message}
-    [Return]    ${json_data}
+    RETURN    ${json_data}
 
 Wait For Service To Be Ready
     [Documentation]    Waits for the API service to be ready
