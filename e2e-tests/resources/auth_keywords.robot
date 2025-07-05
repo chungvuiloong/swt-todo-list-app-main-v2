@@ -15,7 +15,7 @@ Navigate To Register Page
     Wait For Page To Load
     ${current_url}=    Get Location
     Log    Current URL after navigation: ${current_url}
-    Log Page Source
+    Log Source
     Page Should Contain Element    css:form[data-testid="register-form"]
 
 Fill Login Form

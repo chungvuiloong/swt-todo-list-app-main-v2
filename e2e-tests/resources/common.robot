@@ -65,7 +65,7 @@ Wait For Application To Start
 Check Application Health
     [Documentation]    Checks if application is responding
     Create Session    healthcheck    ${BASE_URL}
-    ${response}=    Get Request    healthcheck    /
+    ${response}=    GET On Session    healthcheck    /
     Should Be Equal As Integers    ${response.status_code}    200
 
 Generate Unique Username
