@@ -44,6 +44,9 @@ Login With Valid Credentials
     Navigate To Login Page
     Fill Login Form    ${username}    ${password}
     Submit Login Form
+    Sleep    2s    # Wait for redirect
+    ${current_url}=    Get Location
+    Log    Current URL after login: ${current_url}
     Wait Until Location Contains    /todos    ${EXPLICIT_WAIT}
     Page Should Contain Element    css:[data-testid="todos-page"]
 
@@ -53,6 +56,9 @@ Register New User
     Navigate To Register Page
     Fill Register Form    ${username}    ${password}
     Submit Register Form
+    Sleep    2s    # Wait for redirect
+    ${current_url}=    Get Location
+    Log    Current URL after registration: ${current_url}
     Wait Until Location Contains    /todos    ${EXPLICIT_WAIT}
     Page Should Contain Element    css:[data-testid="todos-page"]
 

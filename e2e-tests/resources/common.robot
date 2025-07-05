@@ -22,6 +22,8 @@ Open Browser To Application
 Open Browser To Application And Navigate To Home
     [Documentation]    Opens browser, navigates to application and waits for it to load
     Open Browser To Application
+    # Clear any existing user data in localStorage
+    Execute Javascript    localStorage.clear()
     Wait For Page To Load
     Log    Current URL: ${EMPTY}
     ${current_url}=    Get Location
