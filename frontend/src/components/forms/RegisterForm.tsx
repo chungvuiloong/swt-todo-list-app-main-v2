@@ -23,7 +23,7 @@ export default function RegisterForm() {
       .createUser(values)
       .then((userAuthData) => {
         setUser(userAuthData)
-        location.assign('/todo-lists')
+        location.assign('/todos')
       })
       .catch((error) => {
         console.log('error:', error)
@@ -92,7 +92,7 @@ export default function RegisterForm() {
             variant="secondary"
             onClick={() => location.assign('/login')}
           />
-          <ActionButton loading={registerForm.submitting} label="Register" variant="primary" />
+          <ActionButton loading={registerForm.submitting} label="Register" variant="primary" type="submit" />
         </div>
       </Form>
     </div>

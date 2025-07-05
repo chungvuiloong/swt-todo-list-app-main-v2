@@ -33,7 +33,7 @@ function RegisterForm() {
     console.log("submitting register form with values:", values);
     userActions.createUser(values).then((userAuthData) => {
       setUser(userAuthData);
-      location.assign("/todo-lists");
+      location.assign("/todos");
     }).catch((error) => {
       console.log("error:", error);
       setRegisterError(error.message);
@@ -94,7 +94,8 @@ function RegisterForm() {
           return registerForm.submitting;
         },
         label: "Register",
-        variant: "primary"
+        variant: "primary",
+        type: "submit"
       })))];
     }
   })));

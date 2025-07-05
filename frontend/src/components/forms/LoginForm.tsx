@@ -23,7 +23,7 @@ export default function LoginForm() {
       .login(values)
       .then((userAuthData) => {
         setUser(userAuthData)
-        location.assign('/todo-lists')
+        location.assign('/todos')
       })
       .catch((error) => {
         console.log('error:', error)
@@ -98,6 +98,7 @@ export default function LoginForm() {
               loading={loginForm.submitting}
               label="Login"
               variant="primary"
+              type="submit"
             />
           </div>
         </Form>

@@ -4,5 +4,7 @@ import TodoListView from '../../components/todoList/TodoListView'
 ---
 
 <BaseLayout>
-  <TodoListView client:only="solid-js" />
+  <div data-testid="todos-page">
+    <TodoListView client:only="solid-js" />
+  </div>
 </BaseLayout>

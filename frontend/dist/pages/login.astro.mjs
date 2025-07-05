@@ -21,7 +21,7 @@ function LoginForm() {
     console.log("submitting login form with values:", values);
     userActions.login(values).then((userAuthData) => {
       setUser(userAuthData);
-      location.assign("/todo-lists");
+      location.assign("/todos");
     }).catch((error) => {
       console.log("error:", error);
       setLoginError(error.message);
@@ -82,7 +82,8 @@ function LoginForm() {
           return loginForm.submitting;
         },
         label: "Login",
-        variant: "primary"
+        variant: "primary",
+        type: "submit"
       })))];
     }
   })));
