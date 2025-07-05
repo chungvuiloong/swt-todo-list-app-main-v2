@@ -3,6 +3,7 @@ Library           RequestsLibrary
 Library           Collections
 Library           String
 Library           JSONLibrary
+Library           Process
 Resource          ../variables/api_config.robot
 Resource          ../variables/api_test_data.robot
 

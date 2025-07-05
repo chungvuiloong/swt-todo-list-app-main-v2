@@ -14,21 +14,6 @@ jobs:
   smoke-tests:
     name: Smoke Tests
     runs-on: ubuntu-latest
-    
-    services:
-      postgres:
-        image: postgres:16.0
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
-          POSTGRES_DB: todo-app
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
     - name: Checkout repository
@@ -59,44 +44,60 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y google-chrome-stable
 
-    - name: Install frontend dependencies
-      working-directory: ./frontend
+    - name: Create environment files
       run: |
-        npm ci
-        npm run build
+        # Ensure environment files exist
+        mkdir -p database backend
+        echo "POSTGRES_USER=postgres" > database/.dev.env
+        echo "POSTGRES_PASSWORD=840fb30f-e424-4a97-b58c-ef4433ebca85" >> database/.dev.env
+        echo "POSTGRES_DB=todo-app" >> database/.dev.env
+        echo "DATABASE_URL=postgresql://\${POSTGRES_USER}:\${POSTGRES_PASSWORD}@database:5432/\${POSTGRES_DB}" >> database/.dev.env
+        
+        echo "SECRET_KEY=test-secret-key-for-ci" > backend/.dev.env
+        echo "TOKEN_ENCRYPTION_ALGORITHM=HS256" >> backend/.dev.env
+        echo "ACCESS_TOKEN_EXPIRE_MINUTES=1440" >> backend/.dev.env
+        echo "REFRESH_TOKEN_EXPIRE_DAYS=30" >> backend/.dev.env
 
-    - name: Install backend dependencies
-      working-directory: ./backend
+    - name: Start application with Docker Compose
       run: |
-        pip install poetry
-        poetry config virtualenvs.create false
-        poetry install --no-root
-
-    - name: Start backend service
-      working-directory: ./backend
-      env:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
-        POSTGRES_DB: todo-app
-        DATABASE_URL: postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app
-        SECRET_KEY: "test-secret-key-for-ci"
-        TOKEN_ENCRYPTION_ALGORITHM: "HS256"
-        ACCESS_TOKEN_EXPIRE_MINUTES: 1440
-        REFRESH_TOKEN_EXPIRE_DAYS: 30
-      run: |
-        nohup python -m uvicorn src.main:app --host 0.0.0.0 --port 4322 &
-        sleep 10
-
-    - name: Start frontend service
-      working-directory: ./frontend
-      run: |
-        nohup npm run preview -- --host 0.0.0.0 --port 4321 &
-        sleep 5
+        docker compose -f compose.dev.yml up -d
+        echo "Waiting for services to start..."
+        sleep 30
 
     - name: Wait for services to be ready
       run: |
-        timeout 60 bash -c 'until curl -f http://localhost:4321; do sleep 2; done'
-        timeout 60 bash -c 'until curl -f http://localhost:4322/api/todo-lists/roles; do sleep 2; done'
+        echo "Waiting for frontend to be ready..."
+        for i in {1..30}; do
+          if curl -f http://localhost:4321; then
+            echo "Frontend is ready!"
+            break
+          fi
+          echo "Attempt $i: Frontend not ready, waiting 5 seconds..."
+          sleep 5
+        done
+        
+        echo "Waiting for API to be ready..."
+        for i in {1..30}; do
+          if curl -f http://localhost:4322/api/todo-lists/roles; then
+            echo "API is ready!"
+            break
+          fi
+          echo "Attempt $i: API not ready, waiting 5 seconds..."
+          sleep 5
+        done
+        
+        # Final checks
+        curl -f http://localhost:4321 || {
+          echo "Frontend health check failed"
+          docker compose -f compose.dev.yml logs frontend
+          exit 1
+        }
+        
+        curl -f http://localhost:4322/api/todo-lists/roles || {
+          echo "API health check failed"
+          docker compose -f compose.dev.yml logs backend
+          exit 1
+        }
 
     - name: Run API Smoke Tests
       working-directory: ./backend/api-tests
@@ -152,3 +153,9 @@ jobs:
               print(f'❌ E2E Failed: {total.get(\"fail\")}')
           " >> $GITHUB_STEP_SUMMARY
         fi
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose -f compose.dev.yml down
+        docker compose -f compose.dev.yml down --volumes

@@ -139,12 +139,27 @@ Tests are configured to run against:
    curl http://localhost:4322/docs
    ```
 
-2. **Database conflicts**: If tests fail due to data conflicts, restart the backend:
+2. **Database conflicts**: If tests fail due to data conflicts, restart the application:
    ```bash
-   docker compose -f compose.dev.yml restart backend database
+   docker compose -f ../../compose.dev.yml down
+   docker compose -f ../../compose.dev.yml up -d
    ```
 
 3. **Authentication errors**: Check that test users are created successfully and tokens are valid
+
+4. **Environment files missing**: Ensure .dev.env files exist:
+   ```bash
+   # Check if environment files exist
+   ls -la ../../database/.dev.env ../../backend/.dev.env
+   
+   # Use the test script to set up environment
+   ../../test-api-locally.sh
+   ```
+
+5. **GitHub Actions failures**: The workflow now uses Docker Compose instead of manual service startup
+   - Environment files are created automatically in CI
+   - Services use proper Docker networking
+   - Health checks wait for services to be fully ready
 
 ### Debug Mode
 ```bash
