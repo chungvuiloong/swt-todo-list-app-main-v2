@@ -44,7 +44,7 @@ jobs:
       working-directory: ./backend
       run: |
         pip install safety
-        safety check --json --output safety-report.json || true
+        safety check --output json > safety-report.json || true
         cat safety-report.json
 
     - name: Run Python Security Scan (Bandit)
