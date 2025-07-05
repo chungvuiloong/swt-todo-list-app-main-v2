@@ -1,22 +1,17 @@
-FROM debian:buster-slim
+FROM rust:1.82-slim-bullseye
 
 WORKDIR /service
 
-# Install wget to fetch refinery
-RUN apt update
-RUN apt install -y wget
+# Install dependencies for building
+RUN apt update && apt install -y \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Fetch and extract refinery
-RUN wget https://github.com/rust-db/refinery/releases/download/0.8.6/refinery-0.8.6-x86_64-unknown-linux-musl.tar.gz
-RUN tar xzf refinery-0.8.6-x86_64-unknown-linux-musl.tar.gz
+# Install refinery CLI
+RUN cargo install refinery_cli --version 0.8.6
 
-# Move to refinery bin to workdir and add execution rights
-RUN cp refinery-0.8.6-x86_64-unknown-linux-musl/refinery . && \
-    chmod +x ./refinery
-
-# Cleanup
-RUN rm -rf refinery-0.8.6-x86_64-unknown-linux-musl.tar.gz refinery-0.8.6-x86_64-unknown-linux-musl
-RUN apt remove -y wget
-RUN rm -rf /var/lib/apt/lists/*
+# Copy the binary to a predictable location
+RUN cp /usr/local/cargo/bin/refinery /service/refinery
 
 ENTRYPOINT ["/service/refinery"]
