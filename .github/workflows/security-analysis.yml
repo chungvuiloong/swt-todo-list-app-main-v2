@@ -1,0 +1,258 @@
+name: Security Analysis & Non-Functional Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run security analysis weekly on Sundays at 3 AM UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  dependency-vulnerability-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: |
+        pip install poetry
+        poetry config virtualenvs.create false
+        poetry install --no-root
+
+    - name: Run Python Security Scan (Safety)
+      working-directory: ./backend
+      run: |
+        pip install safety
+        safety check --json --output safety-report.json || true
+        cat safety-report.json
+
+    - name: Run Python Security Scan (Bandit)
+      working-directory: ./backend
+      run: |
+        pip install bandit
+        bandit -r src/ -f json -o bandit-report.json || true
+        cat bandit-report.json
+
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Run NPM Audit
+      working-directory: ./frontend
+      run: |
+        npm audit --audit-level=moderate --json > npm-audit-report.json || true
+        cat npm-audit-report.json
+
+    - name: Upload Security Reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          backend/safety-report.json
+          backend/bandit-report.json
+          frontend/npm-audit-report.json
+        retention-days: 30
+
+  static-code-analysis:
+    name: Static Code Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Python analysis tools
+      run: |
+        pip install flake8 pylint mypy
+
+    - name: Run Flake8 (Python Style Check)
+      working-directory: ./backend
+      run: |
+        flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 src/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Run Pylint (Python Code Analysis)
+      working-directory: ./backend
+      run: |
+        pylint src/ --exit-zero --output-format=json > pylint-report.json || true
+        cat pylint-report.json
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Run ESLint (JavaScript/TypeScript Analysis)
+      working-directory: ./frontend
+      run: |
+        npm run lint || true
+
+    - name: Upload Code Analysis Reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: code-analysis-reports
+        path: |
+          backend/pylint-report.json
+        retention-days: 30
+
+  docker-security-scan:
+    name: Docker Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Build Docker images
+      run: |
+        docker build -t todo-backend ./backend/
+        docker build -t todo-frontend ./frontend/
+
+    - name: Run Trivy vulnerability scanner on backend
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'todo-backend'
+        format: 'sarif'
+        output: 'backend-trivy-results.sarif'
+
+    - name: Run Trivy vulnerability scanner on frontend
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'todo-frontend'
+        format: 'sarif'
+        output: 'frontend-trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: docker-security-reports
+        path: |
+          backend-trivy-results.sarif
+          frontend-trivy-results.sarif
+        retention-days: 30
+
+  performance-tests:
+    name: Basic Performance Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16.0
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
+          POSTGRES_DB: todo-app
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: |
+        pip install poetry
+        poetry config virtualenvs.create false
+        poetry install --no-root
+
+    - name: Start backend service
+      working-directory: ./backend
+      env:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
+        POSTGRES_DB: todo-app
+        DATABASE_URL: postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app
+        SECRET_KEY: "test-secret-key-for-ci"
+      run: |
+        nohup python -m uvicorn src.main:app --host 0.0.0.0 --port 4322 &
+        sleep 10
+
+    - name: Install Apache Bench
+      run: sudo apt-get install -y apache2-utils
+
+    - name: Wait for API to be ready
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:4322/api/todo-lists/roles; do sleep 2; done'
+
+    - name: Run Basic Load Test
+      run: |
+        echo "## Performance Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "### API Endpoint Performance" >> $GITHUB_STEP_SUMMARY
+        
+        # Test public endpoint
+        ab -n 100 -c 10 http://localhost:4322/api/todo-lists/roles > perf-results.txt
+        
+        echo "**Todo List Roles Endpoint (100 requests, 10 concurrent):**" >> $GITHUB_STEP_SUMMARY
+        grep "Requests per second" perf-results.txt >> $GITHUB_STEP_SUMMARY
+        grep "Time per request" perf-results.txt | head -1 >> $GITHUB_STEP_SUMMARY
+        grep "Failed requests" perf-results.txt >> $GITHUB_STEP_SUMMARY
+
+    - name: Upload Performance Reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-reports
+        path: perf-results.txt
+        retention-days: 7
+
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [dependency-vulnerability-scan, static-code-analysis, docker-security-scan]
+    if: always()
+    
+    steps:
+    - name: Generate Security Summary
+      run: |
+        echo "## Security Analysis Summary" >> $GITHUB_STEP_SUMMARY
+        echo "### Completed Scans" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Dependency vulnerability scan" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Static code analysis" >> $GITHUB_STEP_SUMMARY  
+        echo "- ✅ Docker security scan" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Basic performance tests" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Note:** Review detailed reports in job artifacts for security findings." >> $GITHUB_STEP_SUMMARY

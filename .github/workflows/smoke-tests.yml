@@ -1,0 +1,154 @@
+name: Smoke Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  smoke-tests:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16.0
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
+          POSTGRES_DB: todo-app
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install Robot Framework and dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install robotframework
+        pip install robotframework-seleniumlibrary
+        pip install robotframework-requests
+        pip install robotframework-jsonlibrary
+        pip install webdriver-manager
+        pip install requests
+
+    - name: Install Chrome and ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: |
+        npm ci
+        npm run build
+
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: |
+        pip install poetry
+        poetry config virtualenvs.create false
+        poetry install --no-root
+
+    - name: Start backend service
+      working-directory: ./backend
+      env:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
+        POSTGRES_DB: todo-app
+        DATABASE_URL: postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app
+        SECRET_KEY: "test-secret-key-for-ci"
+        TOKEN_ENCRYPTION_ALGORITHM: "HS256"
+        ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+        REFRESH_TOKEN_EXPIRE_DAYS: 30
+      run: |
+        nohup python -m uvicorn src.main:app --host 0.0.0.0 --port 4322 &
+        sleep 10
+
+    - name: Start frontend service
+      working-directory: ./frontend
+      run: |
+        nohup npm run preview -- --host 0.0.0.0 --port 4321 &
+        sleep 5
+
+    - name: Wait for services to be ready
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:4321; do sleep 2; done'
+        timeout 60 bash -c 'until curl -f http://localhost:4322/api/todo-lists/roles; do sleep 2; done'
+
+    - name: Run API Smoke Tests
+      working-directory: ./backend/api-tests
+      run: |
+        robot --outputdir results-api-smoke \
+              --include smoke \
+              tests/
+
+    - name: Run E2E Smoke Tests
+      working-directory: ./e2e-tests
+      run: |
+        robot --outputdir results-e2e-smoke \
+              --variable HEADLESS:True \
+              --include smoke \
+              tests/
+
+    - name: Upload Smoke Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: smoke-test-results
+        path: |
+          backend/api-tests/results-api-smoke/
+          e2e-tests/results-e2e-smoke/
+        retention-days: 7
+
+    - name: Generate Smoke Test Summary
+      if: always()
+      run: |
+        echo "## Smoke Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "### API Smoke Tests" >> $GITHUB_STEP_SUMMARY
+        if [ -f backend/api-tests/results-api-smoke/output.xml ]; then
+          python -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('backend/api-tests/results-api-smoke/output.xml')
+          suite = tree.getroot()
+          total = suite.find('.//statistics/total/stat[@pass]')
+          if total is not None:
+              print(f'✅ API Passed: {total.get(\"pass\")}')
+              print(f'❌ API Failed: {total.get(\"fail\")}')
+          " >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "### E2E Smoke Tests" >> $GITHUB_STEP_SUMMARY
+        if [ -f e2e-tests/results-e2e-smoke/output.xml ]; then
+          python -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('e2e-tests/results-e2e-smoke/output.xml')
+          suite = tree.getroot()
+          total = suite.find('.//statistics/total/stat[@pass]')
+          if total is not None:
+              print(f'✅ E2E Passed: {total.get(\"pass\")}')
+              print(f'❌ E2E Failed: {total.get(\"fail\")}')
+          " >> $GITHUB_STEP_SUMMARY
+        fi

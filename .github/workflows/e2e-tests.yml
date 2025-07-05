@@ -1,0 +1,243 @@
+name: E2E Tests
+
+on:
+  schedule:
+    # Run full E2E tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    # Allow manual triggering
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - 'e2e-tests/**'
+      - 'compose.dev.yml'
+      - '.github/workflows/e2e-tests.yml'
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16.0
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
+          POSTGRES_DB: todo-app
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install Robot Framework and dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install robotframework
+        pip install robotframework-seleniumlibrary
+        pip install robotframework-requests
+        pip install webdriver-manager
+
+    - name: Install Chrome and ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        # ChromeDriver will be managed by webdriver-manager
+
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: |
+        npm ci
+        npm run build
+
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: |
+        pip install poetry
+        poetry config virtualenvs.create false
+        poetry install --no-root
+
+    - name: Set up test environment variables
+      run: |
+        cp database/.dev.env database/.test.env
+        cp backend/.dev.env backend/.test.env
+
+    - name: Start backend service
+      working-directory: ./backend
+      env:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
+        POSTGRES_DB: todo-app
+        DATABASE_URL: postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app
+      run: |
+        # Run database migrations
+        python -c "
+        import asyncio
+        import asyncpg
+        
+        async def setup_db():
+            conn = await asyncpg.connect('postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app')
+            # Add any necessary schema setup here
+            await conn.close()
+        
+        asyncio.run(setup_db())
+        "
+        
+        # Start backend
+        nohup python -m uvicorn src.main:app --host 0.0.0.0 --port 4322 &
+        sleep 10
+
+    - name: Start frontend service
+      working-directory: ./frontend
+      run: |
+        nohup npm run preview -- --host 0.0.0.0 --port 4321 &
+        sleep 5
+
+    - name: Wait for services to be ready
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:4321; do sleep 2; done'
+        timeout 60 bash -c 'until curl -f http://localhost:4322/api/todo-lists/roles; do sleep 2; done'
+
+    - name: Run E2E Tests
+      working-directory: ./e2e-tests
+      run: |
+        robot --outputdir results \
+              --variable HEADLESS:True \
+              --include smoke \
+              tests/
+
+    - name: Upload E2E Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: e2e-test-results
+        path: e2e-tests/results/
+        retention-days: 30
+
+    - name: Upload Screenshots on Failure
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: e2e-failure-screenshots
+        path: e2e-tests/results/selenium-screenshot-*.png
+        retention-days: 7
+
+  full-e2e-tests:
+    name: Full E2E Test Suite
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    
+    services:
+      postgres:
+        image: postgres:16.0
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
+          POSTGRES_DB: todo-app
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install Robot Framework and dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install robotframework
+        pip install robotframework-seleniumlibrary
+        pip install robotframework-requests
+        pip install webdriver-manager
+
+    - name: Install Chrome and ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: |
+        npm ci
+        npm run build
+
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: |
+        pip install poetry
+        poetry config virtualenvs.create false
+        poetry install --no-root
+
+    - name: Start backend service
+      working-directory: ./backend
+      env:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
+        POSTGRES_DB: todo-app
+        DATABASE_URL: postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app
+      run: |
+        nohup python -m uvicorn src.main:app --host 0.0.0.0 --port 4322 &
+        sleep 10
+
+    - name: Start frontend service
+      working-directory: ./frontend
+      run: |
+        nohup npm run preview -- --host 0.0.0.0 --port 4321 &
+        sleep 5
+
+    - name: Wait for services to be ready
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:4321; do sleep 2; done'
+        timeout 60 bash -c 'until curl -f http://localhost:4322/api/todo-lists/roles; do sleep 2; done'
+
+    - name: Run Full E2E Test Suite
+      working-directory: ./e2e-tests
+      run: |
+        robot --outputdir results \
+              --variable HEADLESS:True \
+              tests/
+
+    - name: Upload Full E2E Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: full-e2e-test-results
+        path: e2e-tests/results/
+        retention-days: 30

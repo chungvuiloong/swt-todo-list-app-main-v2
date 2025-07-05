@@ -1,0 +1,115 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  build-and-test:
+    name: Build and Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install and build frontend
+      working-directory: ./frontend
+      run: |
+        npm ci
+        npm run build
+
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: |
+        pip install poetry
+        poetry config virtualenvs.create false
+        poetry install --no-root
+
+    - name: Type check backend
+      working-directory: ./backend
+      run: |
+        # Add type checking when mypy configuration is available
+        echo "Type checking would run here"
+
+    - name: Lint backend code
+      working-directory: ./backend
+      run: |
+        # Add linting when configuration is available
+        echo "Linting would run here"
+
+    - name: Run unit tests (if available)
+      working-directory: ./backend
+      run: |
+        # Add unit tests when available
+        echo "Unit tests would run here"
+
+    - name: Build Docker images
+      run: |
+        docker build -t todo-backend ./backend/
+        docker build -t todo-frontend ./frontend/
+
+  smoke-tests:
+    name: Run Smoke Tests
+    needs: build-and-test
+    uses: ./.github/workflows/smoke-tests.yml
+
+  api-tests:
+    name: Run API Tests
+    needs: build-and-test
+    uses: ./.github/workflows/api-tests.yml
+
+  security-scan:
+    name: Security Analysis
+    needs: build-and-test
+    uses: ./.github/workflows/security-analysis.yml
+
+  deployment-readiness:
+    name: Deployment Readiness Check
+    runs-on: ubuntu-latest
+    needs: [smoke-tests, api-tests, security-scan]
+    if: always()
+    
+    steps:
+    - name: Check deployment readiness
+      run: |
+        echo "## Deployment Readiness Summary" >> $GITHUB_STEP_SUMMARY
+        
+        # Check if all required jobs passed
+        if [[ "${{ needs.smoke-tests.result }}" == "success" && "${{ needs.api-tests.result }}" == "success" ]]; then
+          echo "✅ **READY FOR DEPLOYMENT**" >> $GITHUB_STEP_SUMMARY
+          echo "- All smoke tests passed" >> $GITHUB_STEP_SUMMARY
+          echo "- All API tests passed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **NOT READY FOR DEPLOYMENT**" >> $GITHUB_STEP_SUMMARY
+          echo "- Smoke tests: ${{ needs.smoke-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- API tests: ${{ needs.api-tests.result }}" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "- Security scan: ${{ needs.security-scan.result }}" >> $GITHUB_STEP_SUMMARY
+        
+        # Set output for potential deployment workflows
+        if [[ "${{ needs.smoke-tests.result }}" == "success" && "${{ needs.api-tests.result }}" == "success" ]]; then
+          echo "deployment_ready=true" >> $GITHUB_OUTPUT
+        else
+          echo "deployment_ready=false" >> $GITHUB_OUTPUT
+        fi
+
+    outputs:
+      deployment_ready: ${{ steps.check.outputs.deployment_ready }}
