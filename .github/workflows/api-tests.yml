@@ -114,13 +114,13 @@ jobs:
         echo "## API Test Results" >> $GITHUB_STEP_SUMMARY
         if [ -f backend/api-tests/results/output.xml ]; then
           python -c "
-          import xml.etree.ElementTree as ET
-          tree = ET.parse('backend/api-tests/results/output.xml')
-          suite = tree.getroot()
-          total = suite.find('.//statistics/total/stat[@pass]')
-          if total is not None:
-              print(f'✅ Passed: {total.get(\"pass\")}')
-              print(f'❌ Failed: {total.get(\"fail\")}')
+import xml.etree.ElementTree as ET
+tree = ET.parse('backend/api-tests/results/output.xml')
+suite = tree.getroot()
+total = suite.find('.//statistics/total/stat[@pass]')
+if total is not None:
+    print(f'✅ Passed: {total.get(\"pass\")}')
+    print(f'❌ Failed: {total.get(\"fail\")}')
           " >> $GITHUB_STEP_SUMMARY
         else
           echo "No test results found" >> $GITHUB_STEP_SUMMARY
