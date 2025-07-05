@@ -2,6 +2,7 @@
 Library           SeleniumLibrary
 Library           Collections
 Library           String
+Library           Process
 Resource          ../variables/config.robot
 Resource          ../variables/test_data.robot
 
@@ -62,13 +63,13 @@ Generate Unique Username
     [Documentation]    Generates a unique username for testing
     ${timestamp}=    Get Time    epoch
     ${unique_username}=    Set Variable    testuser${timestamp}
-    [Return]    ${unique_username}
+    RETURN    ${unique_username}
 
 Generate Unique List Name
     [Documentation]    Generates a unique list name for testing
     ${timestamp}=    Get Time    epoch
     ${unique_name}=    Set Variable    Test List ${timestamp}
-    [Return]    ${unique_name}
+    RETURN    ${unique_name}
 
 Verify Element Contains Text
     [Arguments]    ${locator}    ${expected_text}    ${timeout}=${EXPLICIT_WAIT}
