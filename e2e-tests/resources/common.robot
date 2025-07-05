@@ -14,7 +14,6 @@ Open Browser To Application
     Call Method    ${chrome_options}    add_argument    --no-sandbox
     Call Method    ${chrome_options}    add_argument    --disable-dev-shm-usage
     Call Method    ${chrome_options}    add_argument    --disable-gpu
-    Call Method    ${chrome_options}    add_argument    --window-size=1920,1080
     Open Browser    ${BASE_URL}    ${BROWSER}    options=${chrome_options}
     Set Selenium Implicit Wait    ${IMPLICIT_WAIT}
     Maximize Browser Window
