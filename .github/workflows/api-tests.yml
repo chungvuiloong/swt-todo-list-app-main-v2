@@ -15,6 +15,7 @@ on:
     # Run API tests daily at 1 AM UTC
     - cron: '0 1 * * *'
   workflow_dispatch:
+  workflow_call:
     # Allow manual triggering
 
 env:

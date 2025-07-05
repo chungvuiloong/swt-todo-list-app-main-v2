@@ -88,6 +88,7 @@ jobs:
     
     steps:
     - name: Check deployment readiness
+      id: check
       run: |
         echo "## Deployment Readiness Summary" >> $GITHUB_STEP_SUMMARY
         
