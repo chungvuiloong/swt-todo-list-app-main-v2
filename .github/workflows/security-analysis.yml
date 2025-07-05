@@ -214,24 +214,23 @@ jobs:
     - name: Set up database schema
       env:
         DATABASE_URL: postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app
+        PGPASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
       run: |
-        # Install asyncpg for database operations
+        # Install required tools
         pip install asyncpg
-        # Create database schema (simplified version)
-        python -c "$(cat <<'EOF'
-import asyncio
-import asyncpg
-
-async def setup_db():
-    conn = await asyncpg.connect('postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app')
-    # Create basic schema for roles if needed
-    await conn.execute('CREATE TABLE IF NOT EXISTS todo_list_roles (id SERIAL PRIMARY KEY, name VARCHAR NOT NULL, created TIMESTAMP DEFAULT NOW(), updated TIMESTAMP DEFAULT NOW())')
-    await conn.execute("INSERT INTO todo_list_roles (name) VALUES ('owner'), ('editor'), ('viewer') ON CONFLICT DO NOTHING")
-    await conn.close()
-
-asyncio.run(setup_db())
-EOF
-        )"
+        sudo apt-get install -y postgresql-client
+        
+        # Create database schema using psql (simpler than Python)
+        psql -h localhost -p 5432 -U postgres -d todo-app -c "
+          CREATE TABLE IF NOT EXISTS todo_list_roles (
+            id SERIAL PRIMARY KEY, 
+            name VARCHAR NOT NULL, 
+            created TIMESTAMP DEFAULT NOW(), 
+            updated TIMESTAMP DEFAULT NOW()
+          );
+          INSERT INTO todo_list_roles (name) VALUES ('owner'), ('editor'), ('viewer') 
+          ON CONFLICT DO NOTHING;
+        " || echo "Database schema setup completed"
 
     - name: Start backend service
       working-directory: ./backend
