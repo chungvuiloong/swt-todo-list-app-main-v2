@@ -281,7 +281,7 @@ export default function TodoList(props: TodoListProps) {
 
   return (
     user.username && (
-      <div class="flex w-full max-w-3xl grow flex-col">
+      <div class="flex w-full max-w-3xl grow flex-col" data-testid="todos-page">
         {active.todoList?.name && (
           <>
             <div class="container prose mb-8 w-full max-w-full pb-2 ">

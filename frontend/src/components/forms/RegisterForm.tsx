@@ -49,7 +49,7 @@ export default function RegisterForm() {
         </p>
       </div>
       <FormError error={registerError()} formName="login" />
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} data-testid="register-form">
         <Field name="username" validate={[required('Please enter your username.')]}>
           {(field, props) => (
             <>

@@ -14,6 +14,7 @@ export function FormError(props: FormErrorProps) {
       <div
         class="py-4 text-sm text-red-500 md:text-base lg:pt-5 lg:text-lg dark:text-red-400"
         id={`${props.formName}-form-error`}
+        data-testid="error-message"
       >
         {props.error}
       </div>

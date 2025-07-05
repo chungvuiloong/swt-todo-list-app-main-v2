@@ -32,7 +32,7 @@ const ProfileItems = () => {
             </>
           }
         />
-        <NavItem label="Logout" onClick={handleLogout} />
+        <NavItem label="Logout" onClick={handleLogout} data-testid="logout-button" />
       </div>
     </Show>
   )

@@ -51,7 +51,7 @@ export default function LoginForm() {
           </p>
         </div>
         <FormError error={loginError()} formName="login" />
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} data-testid="login-form">
           <Field
             name="username"
             validate={[required('Please enter your username.')]}
