@@ -202,27 +202,9 @@ jobs:
         echo "Checking service status..."
         docker compose -f compose.dev.yml ps
         
-        echo "Waiting for backend API to be ready..."
-        for i in {1..30}; do
-          if curl -f http://localhost:4322/health 2>/dev/null; then
-            echo "✅ Backend API is ready!"
-            break
-          fi
-          echo "Attempt $i: Backend not ready, waiting 2 seconds..."
-          sleep 2
-        done
-        
-        # Final verification
-        if ! curl -f http://localhost:4322/health; then
-          echo "❌ API health check failed"
-          echo "Docker service status:"
-          docker compose -f compose.dev.yml ps
-          echo "Backend logs:"
-          docker compose -f compose.dev.yml logs backend
-          exit 1
-        fi
-        
-        echo "✅ Backend API is ready for performance testing!"
+        # Use the robust health check script
+        chmod +x ./e2e-tests/wait-for-services.sh
+        ./e2e-tests/wait-for-services.sh
 
     - name: Run Basic Load Test
       run: |

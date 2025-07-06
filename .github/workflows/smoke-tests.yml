@@ -71,68 +71,9 @@ jobs:
         echo "📊 Service status:"
         docker compose -f compose.dev.yml ps
         
-        echo "Waiting for database to be ready..."
-        for i in {1..30}; do
-          if docker compose -f compose.dev.yml exec -T database pg_isready -U postgres; then
-            echo "Database is ready!"
-            break
-          fi
-          echo "Attempt $i: Database not ready, waiting 2 seconds..."
-          sleep 2
-        done
-        
-        echo "Waiting for backend service to start..."
-        for i in {1..30}; do
-          if curl -f http://localhost:4322/health 2>/dev/null; then
-            echo "Backend service is running!"
-            break
-          fi
-          echo "Attempt $i: Backend service not ready, waiting 2 seconds..."
-          sleep 2
-        done
-        
-        echo "Waiting for database-dependent API endpoints..."
-        for i in {1..30}; do
-          if curl -f http://localhost:4322/api/todo-lists/roles 2>/dev/null; then
-            echo "Backend API with database is ready!"
-            break
-          fi
-          echo "Attempt $i: Database API not ready, waiting 2 seconds..."
-          sleep 2
-        done
-        
-        echo "Waiting for frontend to be ready..."
-        for i in {1..30}; do
-          if curl -f http://localhost:4321 2>/dev/null; then
-            echo "Frontend is ready!"
-            break
-          fi
-          echo "Attempt $i: Frontend not ready, waiting 2 seconds..."
-          sleep 2
-        done
-        
-        # Final verification with detailed logging
-        echo "🔍 Final service verification..."
-        
-        if ! curl -f http://localhost:4322/api/todo-lists/roles; then
-          echo "❌ Backend API health check failed"
-          echo "📋 Backend logs:"
-          docker compose -f compose.dev.yml logs backend
-          echo "📋 Database logs:"
-          docker compose -f compose.dev.yml logs database
-          echo "🔍 Network test:"
-          curl -v http://localhost:4322/api/todo-lists/roles || true
-          exit 1
-        fi
-        
-        if ! curl -f http://localhost:4321; then
-          echo "❌ Frontend health check failed"
-          echo "📋 Frontend logs:"
-          docker compose -f compose.dev.yml logs frontend
-          exit 1
-        fi
-        
-        echo "✅ All services are ready!"
+        # Use the robust health check script
+        chmod +x ./e2e-tests/wait-for-services.sh
+        ./e2e-tests/wait-for-services.sh
 
     - name: Run API Smoke Tests
       working-directory: ./backend/api-tests
