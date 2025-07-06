@@ -47,8 +47,8 @@ Login With Valid Credentials
     Sleep    2s    # Wait for redirect
     ${current_url}=    Get Location
     Log    Current URL after login: ${current_url}
-    Wait Until Location Contains    /todos    ${EXPLICIT_WAIT}
-    Page Should Contain Element    css:[data-testid="todos-page"]
+    Wait Until Location Contains    /todo-lists    ${EXPLICIT_WAIT}
+    Page Should Contain Element    css:[data-testid="todo-lists-page"]
 
 Register New User
     [Arguments]    ${username}=${TEST_USER_1}    ${password}=${TEST_PASSWORD_1}
@@ -59,8 +59,8 @@ Register New User
     Sleep    2s    # Wait for redirect
     ${current_url}=    Get Location
     Log    Current URL after registration: ${current_url}
-    Wait Until Location Contains    /todos    ${EXPLICIT_WAIT}
-    Page Should Contain Element    css:[data-testid="todos-page"]
+    Wait Until Location Contains    /todo-lists    ${EXPLICIT_WAIT}
+    Page Should Contain Element    css:[data-testid="todo-lists-page"]
 
 Logout User
     [Documentation]    Logs out the current user
@@ -82,8 +82,8 @@ Verify Registration Error Message
 
 Verify User Is Logged In
     [Documentation]    Verifies that user is successfully logged in
-    Location Should Contain    /todos
-    Page Should Contain Element    css:[data-testid="todos-page"]
+    Location Should Contain    /todo-lists
+    Page Should Contain Element    css:[data-testid="todo-lists-page"]
     Page Should Contain Element    css:[data-testid="logout-button"]
 
 Verify User Is Logged Out
