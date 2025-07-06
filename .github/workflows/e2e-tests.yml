@@ -23,21 +23,6 @@ jobs:
   e2e-tests:
     name: End-to-End Tests
     runs-on: ubuntu-latest
-    
-    services:
-      postgres:
-        image: postgres:16.0
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
-          POSTGRES_DB: todo-app
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
     - name: Checkout repository
@@ -59,67 +44,123 @@ jobs:
         pip install robotframework
         pip install robotframework-seleniumlibrary
         pip install robotframework-requests
+        pip install robotframework-jsonlibrary
         pip install webdriver-manager
 
-    - name: Install Chrome and ChromeDriver
+    - name: Install Chrome and debugging tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
-        # ChromeDriver will be managed by webdriver-manager
+        sudo apt-get install -y google-chrome-stable netcat-openbsd
 
-    - name: Install frontend dependencies
-      working-directory: ./frontend
+    - name: Start application services
       run: |
-        npm ci
-        npm run build
-
-    - name: Install backend dependencies
-      working-directory: ./backend
-      run: |
-        pip install poetry
-        poetry config virtualenvs.create false
-        poetry install --no-root
-
-    - name: Set up test environment variables
-      run: |
-        cp database/.dev.env database/.test.env
-        cp backend/.dev.env backend/.test.env
-
-    - name: Start backend service
-      working-directory: ./backend
-      env:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
-        POSTGRES_DB: todo-app
-        DATABASE_URL: postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app
-      run: |
-        # Run database migrations
-        python -c "
-        import asyncio
-        import asyncpg
+        # Use the robust startup approach from Force Backend Fix Test
+        echo "🚀 Starting services using robust Docker Compose approach..."
         
-        async def setup_db():
-            conn = await asyncpg.connect('postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app')
-            # Add any necessary schema setup here
-            await conn.close()
+        # Clean up any existing containers
+        docker compose -f compose.dev.yml down --volumes --remove-orphans || true
         
-        asyncio.run(setup_db())
-        "
+        # Create environment files
+        mkdir -p database backend
+        cat > database/.dev.env << EOF
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=840fb30f-e424-4a97-b58c-ef4433ebca85
+        POSTGRES_DB=todo-app
+        DATABASE_URL=postgresql://\${POSTGRES_USER}:\${POSTGRES_PASSWORD}@database:5432/\${POSTGRES_DB}
+        EOF
+        
+        cat > backend/.dev.env << EOF
+        SECRET_KEY=test-secret-key-for-ci
+        TOKEN_ENCRYPTION_ALGORITHM=HS256
+        ACCESS_TOKEN_EXPIRE_MINUTES=1440
+        REFRESH_TOKEN_EXPIRE_DAYS=30
+        EOF
+        
+        # Build with no cache to ensure fresh builds
+        echo "🏗️  Building with no cache..."
+        docker compose -f compose.dev.yml build --no-cache
+        
+        # Start database first
+        echo "🗄️  Starting database..."
+        docker compose -f compose.dev.yml up -d database
+        
+        # Wait for database
+        echo "⏳ Waiting for database..."
+        for i in {1..30}; do
+          if docker compose -f compose.dev.yml exec -T database pg_isready -U postgres -d todo-app; then
+            echo "✅ Database ready"
+            break
+          fi
+          sleep 2
+        done
+        
+        # Run migration
+        echo "🔄 Running migration..."
+        docker compose -f compose.dev.yml up database-migration
+        if [ $? -ne 0 ]; then
+          echo "❌ Migration failed"
+          docker compose -f compose.dev.yml logs database-migration
+          exit 1
+        fi
         
         # Start backend
-        nohup python -m uvicorn src.main:app --host 0.0.0.0 --port 4322 &
-        sleep 10
+        echo "🔧 Starting backend..."
+        docker compose -f compose.dev.yml up -d backend
+        
+        # Wait for backend with detailed checking
+        echo "⏳ Waiting for backend..."
+        for i in {1..60}; do
+          # Check if container is running
+          if ! docker compose -f compose.dev.yml ps backend | grep -q "Up"; then
+            echo "❌ Backend container stopped running!"
+            docker compose -f compose.dev.yml logs backend
+            exit 1
+          fi
+          
+          # Test connectivity
+          if curl -f http://localhost:4322/health >/dev/null 2>&1; then
+            echo "✅ Backend ready!"
+            break
+          fi
+          
+          if [ $i -eq 60 ]; then
+            echo "❌ Backend failed to respond"
+            docker compose -f compose.dev.yml logs backend
+            exit 1
+          fi
+          
+          sleep 2
+        done
+        
+        # Start frontend
+        echo "🌐 Starting frontend..."
+        docker compose -f compose.dev.yml up -d frontend
+        
+        # Wait for frontend
+        echo "⏳ Waiting for frontend..."
+        for i in {1..30}; do
+          if curl -f http://localhost:4321 >/dev/null 2>&1; then
+            echo "✅ Frontend ready!"
+            break
+          fi
+          sleep 2
+        done
+        
+        echo "🎉 All services started successfully!"
+        docker compose -f compose.dev.yml ps
 
-    - name: Start frontend service
-      working-directory: ./frontend
+    - name: Verify services are accessible
       run: |
-        nohup npm run preview -- --host 0.0.0.0 --port 4321 &
-        sleep 5
-
-    - name: Wait for services to be ready
-      run: |
-        timeout 60 bash -c 'until curl -f http://localhost:4321; do sleep 2; done'
-        timeout 60 bash -c 'until curl -f http://localhost:4322/api/todo-lists/roles; do sleep 2; done'
+        echo "🔍 Post-startup verification..."
+        
+        echo "Testing frontend..."
+        curl -f http://localhost:4321 >/dev/null && echo "✅ Frontend OK" || echo "❌ Frontend failed"
+        
+        echo "Testing backend health..."
+        curl -f http://localhost:4322/health && echo "✅ Backend health OK" || echo "❌ Backend health failed"
+        
+        echo "Testing backend API..."
+        curl -f http://localhost:4322/api/todo-lists/roles >/dev/null && echo "✅ Backend API OK" || echo "❌ Backend API failed"
 
     - name: Run E2E Tests
       working-directory: ./e2e-tests
@@ -145,25 +186,15 @@ jobs:
         path: e2e-tests/results/selenium-screenshot-*.png
         retention-days: 7
 
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose -f compose.dev.yml down --volumes --remove-orphans || true
+
   full-e2e-tests:
     name: Full E2E Test Suite
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    
-    services:
-      postgres:
-        image: postgres:16.0
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
-          POSTGRES_DB: todo-app
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
     - name: Checkout repository
@@ -185,47 +216,123 @@ jobs:
         pip install robotframework
         pip install robotframework-seleniumlibrary
         pip install robotframework-requests
+        pip install robotframework-jsonlibrary
         pip install webdriver-manager
 
-    - name: Install Chrome and ChromeDriver
+    - name: Install Chrome and debugging tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
+        sudo apt-get install -y google-chrome-stable netcat-openbsd
 
-    - name: Install frontend dependencies
-      working-directory: ./frontend
+    - name: Start application services
       run: |
-        npm ci
-        npm run build
+        # Use the robust startup approach from Force Backend Fix Test
+        echo "🚀 Starting services using robust Docker Compose approach..."
+        
+        # Clean up any existing containers
+        docker compose -f compose.dev.yml down --volumes --remove-orphans || true
+        
+        # Create environment files
+        mkdir -p database backend
+        cat > database/.dev.env << EOF
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=840fb30f-e424-4a97-b58c-ef4433ebca85
+        POSTGRES_DB=todo-app
+        DATABASE_URL=postgresql://\${POSTGRES_USER}:\${POSTGRES_PASSWORD}@database:5432/\${POSTGRES_DB}
+        EOF
+        
+        cat > backend/.dev.env << EOF
+        SECRET_KEY=test-secret-key-for-ci
+        TOKEN_ENCRYPTION_ALGORITHM=HS256
+        ACCESS_TOKEN_EXPIRE_MINUTES=1440
+        REFRESH_TOKEN_EXPIRE_DAYS=30
+        EOF
+        
+        # Build with no cache to ensure fresh builds
+        echo "🏗️  Building with no cache..."
+        docker compose -f compose.dev.yml build --no-cache
+        
+        # Start database first
+        echo "🗄️  Starting database..."
+        docker compose -f compose.dev.yml up -d database
+        
+        # Wait for database
+        echo "⏳ Waiting for database..."
+        for i in {1..30}; do
+          if docker compose -f compose.dev.yml exec -T database pg_isready -U postgres -d todo-app; then
+            echo "✅ Database ready"
+            break
+          fi
+          sleep 2
+        done
+        
+        # Run migration
+        echo "🔄 Running migration..."
+        docker compose -f compose.dev.yml up database-migration
+        if [ $? -ne 0 ]; then
+          echo "❌ Migration failed"
+          docker compose -f compose.dev.yml logs database-migration
+          exit 1
+        fi
+        
+        # Start backend
+        echo "🔧 Starting backend..."
+        docker compose -f compose.dev.yml up -d backend
+        
+        # Wait for backend with detailed checking
+        echo "⏳ Waiting for backend..."
+        for i in {1..60}; do
+          # Check if container is running
+          if ! docker compose -f compose.dev.yml ps backend | grep -q "Up"; then
+            echo "❌ Backend container stopped running!"
+            docker compose -f compose.dev.yml logs backend
+            exit 1
+          fi
+          
+          # Test connectivity
+          if curl -f http://localhost:4322/health >/dev/null 2>&1; then
+            echo "✅ Backend ready!"
+            break
+          fi
+          
+          if [ $i -eq 60 ]; then
+            echo "❌ Backend failed to respond"
+            docker compose -f compose.dev.yml logs backend
+            exit 1
+          fi
+          
+          sleep 2
+        done
+        
+        # Start frontend
+        echo "🌐 Starting frontend..."
+        docker compose -f compose.dev.yml up -d frontend
+        
+        # Wait for frontend
+        echo "⏳ Waiting for frontend..."
+        for i in {1..30}; do
+          if curl -f http://localhost:4321 >/dev/null 2>&1; then
+            echo "✅ Frontend ready!"
+            break
+          fi
+          sleep 2
+        done
+        
+        echo "🎉 All services started successfully!"
+        docker compose -f compose.dev.yml ps
 
-    - name: Install backend dependencies
-      working-directory: ./backend
+    - name: Verify services are accessible
       run: |
-        pip install poetry
-        poetry config virtualenvs.create false
-        poetry install --no-root
-
-    - name: Start backend service
-      working-directory: ./backend
-      env:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: 840fb30f-e424-4a97-b58c-ef4433ebca85
-        POSTGRES_DB: todo-app
-        DATABASE_URL: postgresql://postgres:840fb30f-e424-4a97-b58c-ef4433ebca85@localhost:5432/todo-app
-      run: |
-        nohup python -m uvicorn src.main:app --host 0.0.0.0 --port 4322 &
-        sleep 10
-
-    - name: Start frontend service
-      working-directory: ./frontend
-      run: |
-        nohup npm run preview -- --host 0.0.0.0 --port 4321 &
-        sleep 5
-
-    - name: Wait for services to be ready
-      run: |
-        timeout 60 bash -c 'until curl -f http://localhost:4321; do sleep 2; done'
-        timeout 60 bash -c 'until curl -f http://localhost:4322/api/todo-lists/roles; do sleep 2; done'
+        echo "🔍 Post-startup verification..."
+        
+        echo "Testing frontend..."
+        curl -f http://localhost:4321 >/dev/null && echo "✅ Frontend OK" || echo "❌ Frontend failed"
+        
+        echo "Testing backend health..."
+        curl -f http://localhost:4322/health && echo "✅ Backend health OK" || echo "❌ Backend health failed"
+        
+        echo "Testing backend API..."
+        curl -f http://localhost:4322/api/todo-lists/roles >/dev/null && echo "✅ Backend API OK" || echo "❌ Backend API failed"
 
     - name: Run Full E2E Test Suite
       working-directory: ./e2e-tests
@@ -241,3 +348,8 @@ jobs:
         name: full-e2e-test-results
         path: e2e-tests/results/
         retention-days: 30
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose -f compose.dev.yml down --volumes --remove-orphans || true
