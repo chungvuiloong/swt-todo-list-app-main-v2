@@ -3,6 +3,10 @@ import BaseLayout from '../../../layout/BaseLayout.astro'
 import TodoListView from '../../../components/todoList/TodoListView'
 
 export const prerender = false
+
+export async function getStaticPaths() {
+  return []
+}
 ---
 
 <BaseLayout>
