@@ -23,7 +23,7 @@ export default function LoginForm() {
       .login(values)
       .then((userAuthData) => {
         setUser(userAuthData)
-        location.assign('/todos')
+        location.assign('/todo-lists')
       })
       .catch((error) => {
         console.log('error:', error)
@@ -34,7 +34,7 @@ export default function LoginForm() {
   createEffect(
     on(
       () => user,
-      (user) => user && user.username && location.assign('/todos'),
+      (user) => user && user.username && location.assign('/todo-lists'),
     ),
   )
 
@@ -54,7 +54,7 @@ export default function LoginForm() {
         <Form onSubmit={handleSubmit} data-testid="login-form">
           <Field
             name="username"
-            validate={[required('Please enter your username.')]}
+            validate={[required('Username cannot be empty')]}
           >
             {(field, props) => (
               <>
@@ -71,7 +71,7 @@ export default function LoginForm() {
           </Field>
           <Field
             name="password"
-            validate={[required('Please enter your password.')]}
+            validate={[required('Password cannot be empty')]}
           >
             {(field, props) => (
               <>

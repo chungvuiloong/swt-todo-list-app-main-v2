@@ -43,7 +43,7 @@ async def create_user(username: str, password: str) -> User:
 
     if user:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST,
-                            detail="User already exists with this username")
+                            detail="User already exists")
 
     query = text(sql).bindparams(username=username, password=password)
     user = await database.fetch_one(query=query)

@@ -46,7 +46,7 @@ async def login(username: str, password: str) -> AuthData:
 
     if not user or not verify_password(password, user.password):
         raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED,
-                            detail="Incorrect username or password")
+                            detail="Invalid credentials")
 
     access_token = jwt.encode(
         payload={"user_id": user.id, "username": user.username})

@@ -10,7 +10,7 @@
 <script is:inline>
   const username = JSON.parse(localStorage.getItem('userData') ?? '{}')?.username
   if (username) {
-    location.assign('/todos')
+    location.assign('/todo-lists')
   } else {
     location.assign('/login')
   }

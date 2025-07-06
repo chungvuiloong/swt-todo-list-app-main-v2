@@ -23,7 +23,7 @@ export default function RegisterForm() {
       .createUser(values)
       .then((userAuthData) => {
         setUser(userAuthData)
-        location.assign('/todos')
+        location.assign('/todo-lists')
       })
       .catch((error) => {
         console.log('error:', error)
@@ -34,7 +34,7 @@ export default function RegisterForm() {
   createEffect(
     on(
       () => user,
-      (user) => user && user.username && location.assign('/todos'),
+      (user) => user && user.username && location.assign('/todo-lists'),
     ),
   )
 
@@ -48,9 +48,9 @@ export default function RegisterForm() {
           through the button below on the left.
         </p>
       </div>
-      <FormError error={registerError()} formName="login" />
+      <FormError error={registerError()} formName="register" />
       <Form onSubmit={handleSubmit} data-testid="register-form">
-        <Field name="username" validate={[required('Please enter your username.')]}>
+        <Field name="username" validate={[required('Username cannot be empty')]}>
           {(field, props) => (
             <>
               <TextInput
@@ -67,8 +67,8 @@ export default function RegisterForm() {
         <Field
           name="password"
           validate={[
-            required('Please enter your password.'),
-            minLength(8, 'You password must have 8 characters or more.'),
+            required('Password cannot be empty'),
+            minLength(8, 'Password must be at least 8 characters'),
           ]}
         >
           {(field, props) => (
