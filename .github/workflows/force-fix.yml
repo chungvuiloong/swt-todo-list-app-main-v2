@@ -1,0 +1,169 @@
+name: Force Backend Fix Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, develop ]
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  test-backend-fix:
+    name: Test Backend Connectivity Fix
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install debugging tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y netcat-openbsd
+
+    - name: Force clean start
+      run: |
+        echo "🧹 Force cleaning Docker environment..."
+        docker system prune -af || true
+        docker volume prune -f || true
+        
+        echo "📝 Creating environment files with explicit debugging..."
+        mkdir -p database backend
+        
+        # Create database env
+        cat > database/.dev.env << 'EOF'
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=840fb30f-e424-4a97-b58c-ef4433ebca85
+        POSTGRES_DB=todo-app
+        DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}
+        EOF
+        
+        # Create backend env
+        cat > backend/.dev.env << 'EOF'
+        SECRET_KEY=test-secret-key-for-ci
+        TOKEN_ENCRYPTION_ALGORITHM=HS256
+        ACCESS_TOKEN_EXPIRE_MINUTES=1440
+        REFRESH_TOKEN_EXPIRE_DAYS=30
+        EOF
+        
+        echo "📁 Environment files created:"
+        ls -la database/.dev.env backend/.dev.env
+        echo "📄 Database env content:"
+        cat database/.dev.env
+        echo "📄 Backend env content:"
+        cat backend/.dev.env
+
+    - name: Build and start services step by step
+      run: |
+        echo "🏗️  Building services..."
+        docker compose -f compose.dev.yml build --no-cache --progress=plain
+        
+        echo "🗄️  Starting database..."
+        docker compose -f compose.dev.yml up -d database
+        
+        # Wait for database
+        echo "⏳ Waiting for database..."
+        for i in {1..30}; do
+          if docker compose -f compose.dev.yml exec -T database pg_isready -U postgres -d todo-app; then
+            echo "✅ Database is ready!"
+            break
+          fi
+          echo "Attempt $i: Database not ready, waiting..."
+          sleep 3
+          if [ $i -eq 30 ]; then
+            echo "❌ Database failed to start"
+            docker compose -f compose.dev.yml logs database
+            exit 1
+          fi
+        done
+        
+        echo "🔄 Running database migration..."
+        docker compose -f compose.dev.yml up database-migration
+        migration_exit=$?
+        if [ $migration_exit -ne 0 ]; then
+          echo "❌ Migration failed with exit code $migration_exit"
+          docker compose -f compose.dev.yml logs database-migration
+          exit 1
+        fi
+        echo "✅ Migration completed successfully"
+        
+        echo "🔧 Starting backend..."
+        docker compose -f compose.dev.yml up -d backend
+        
+        echo "📊 Backend container status:"
+        docker compose -f compose.dev.yml ps backend
+        
+        echo "⏳ Waiting for backend..."
+        for i in {1..60}; do
+          # Check container status
+          if ! docker compose -f compose.dev.yml ps backend | grep -q "Up"; then
+            echo "❌ Backend container stopped!"
+            docker compose -f compose.dev.yml ps backend
+            docker compose -f compose.dev.yml logs backend
+            exit 1
+          fi
+          
+          # Test connectivity
+          if curl -f http://localhost:4322/health >/dev/null 2>&1; then
+            echo "✅ Backend is responding!"
+            break
+          fi
+          
+          # Debug info every 10 attempts
+          if [ $((i % 10)) -eq 0 ]; then
+            echo "🔍 Debug info at attempt $i:"
+            echo "Container status:"
+            docker compose -f compose.dev.yml ps backend
+            echo "Recent backend logs:"
+            docker compose -f compose.dev.yml logs backend | tail -10
+            echo "Port connectivity:"
+            nc -z localhost 4322 && echo "Port 4322 is open" || echo "Port 4322 is closed"
+            echo "Network info:"
+            docker network ls
+          fi
+          
+          sleep 3
+          if [ $i -eq 60 ]; then
+            echo "❌ Backend failed to respond after 3 minutes"
+            echo "Final diagnostics:"
+            docker compose -f compose.dev.yml ps
+            docker compose -f compose.dev.yml logs backend
+            docker compose -f compose.dev.yml logs database
+            exit 1
+          fi
+        done
+        
+        echo "🌐 Starting frontend..."
+        docker compose -f compose.dev.yml up -d frontend
+        
+        echo "⏳ Waiting for frontend..."
+        for i in {1..30}; do
+          if curl -f http://localhost:4321 >/dev/null 2>&1; then
+            echo "✅ Frontend is ready!"
+            break
+          fi
+          sleep 2
+          if [ $i -eq 30 ]; then
+            echo "❌ Frontend failed"
+            docker compose -f compose.dev.yml logs frontend
+            exit 1
+          fi
+        done
+
+    - name: Final connectivity test
+      run: |
+        echo "🔍 Final connectivity verification..."
+        
+        echo "Testing frontend..."
+        curl -f http://localhost:4321 >/dev/null && echo "✅ Frontend OK" || echo "❌ Frontend failed"
+        
+        echo "Testing backend health..."
+        curl -f http://localhost:4322/health && echo "✅ Backend health OK" || echo "❌ Backend health failed"
+        
+        echo "Testing backend API..."
+        curl -f http://localhost:4322/api/todo-lists/roles >/dev/null && echo "✅ Backend API OK" || echo "❌ Backend API failed"
+        
+        echo "📊 Final service status:"
+        docker compose -f compose.dev.yml ps
