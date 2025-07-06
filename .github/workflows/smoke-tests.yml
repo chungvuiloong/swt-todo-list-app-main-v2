@@ -40,10 +40,10 @@ jobs:
         pip install webdriver-manager
         pip install requests
 
-    - name: Install Chrome and ChromeDriver
+    - name: Install Chrome and debugging tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
+        sudo apt-get install -y google-chrome-stable netcat-openbsd
 
     - name: Create environment files
       run: |
@@ -61,8 +61,17 @@ jobs:
 
     - name: Start application with Docker Compose
       run: |
+        echo "Building and starting services..."
+        
+        # Build with verbose output to catch build issues
+        docker compose -f compose.dev.yml build --progress=plain
+        
         echo "Starting services with health checks..."
         docker compose -f compose.dev.yml up -d --wait
+        
+        echo "Immediate service status after startup:"
+        docker compose -f compose.dev.yml ps
+        
         echo "Services started, waiting for full initialization..."
         sleep 15
 
@@ -70,6 +79,34 @@ jobs:
       run: |
         echo "📊 Service status:"
         docker compose -f compose.dev.yml ps
+        
+        echo "🔍 Checking individual service health..."
+        echo "Database migration logs:"
+        docker compose -f compose.dev.yml logs database-migration | tail -30
+        echo "Backend logs:"
+        docker compose -f compose.dev.yml logs backend | tail -50
+        echo "Database logs:"
+        docker compose -f compose.dev.yml logs database | tail -20
+        echo "Frontend logs:"
+        docker compose -f compose.dev.yml logs frontend | tail -20
+        
+        # Check migration status
+        migration_status=$(docker compose -f compose.dev.yml ps database-migration --format "{{.State}}")
+        echo "Migration status: $migration_status"
+        if [ "$migration_status" != "exited" ]; then
+          echo "❌ Database migration did not complete successfully!"
+          echo "Migration logs:"
+          docker compose -f compose.dev.yml logs database-migration
+          exit 1
+        fi
+        
+        # Check if backend container is running
+        if ! docker compose -f compose.dev.yml ps backend | grep -q "Up"; then
+          echo "❌ Backend container is not running!"
+          echo "Full backend logs:"
+          docker compose -f compose.dev.yml logs backend
+          exit 1
+        fi
         
         # Use the robust health check script
         chmod +x ./e2e-tests/wait-for-services.sh
