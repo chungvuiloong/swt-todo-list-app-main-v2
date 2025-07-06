@@ -42,7 +42,7 @@ export default function CreateTodoItemForm(props: CreateTodoItemFormProps) {
   }
 
   return (
-    <div class="flex max-w-2xl flex-col justify-center self-center ">
+    <div class="flex max-w-2xl flex-col justify-center self-center " data-testid="create-item-dialog">
       <div class="container prose mb-2">
         <h1>New todo task</h1>
       </div>
@@ -75,6 +75,7 @@ export default function CreateTodoItemForm(props: CreateTodoItemFormProps) {
             loading={createTodoItemForm.submitting}
             label="Create"
             variant="primary"
+            data-testid="create-item-submit"
           />
         </div>
       </Form>

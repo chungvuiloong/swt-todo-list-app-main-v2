@@ -26,6 +26,8 @@ const TodoItem = (props: TodoItemProps) => {
       style={{
         'text-decoration': todoItem.completed ? 'line-through' : 'none',
       }}
+      data-testid="todo-item"
+      data-description={todoItem.description}
     >
       {props.editState ? (
         <EditTodoItemForm

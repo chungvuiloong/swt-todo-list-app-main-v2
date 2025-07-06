@@ -87,6 +87,7 @@ const TodoListItems = () => {
               </>
             }
             onClick={() => dialogUtil.open(shareModalId)}
+            data-testid="share-list-button"
           />
           <ShareTodoListForm
             todoList={todoList()!}

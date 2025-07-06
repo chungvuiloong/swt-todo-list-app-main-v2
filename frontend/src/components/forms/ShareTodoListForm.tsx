@@ -103,7 +103,7 @@ export default function ShareTodoListForm(props: shareTodoListFormProps) {
   }
 
   return (
-    <dialog id={props.dialogId} class="modal">
+    <dialog id={props.dialogId} class="modal" data-testid="share-list-dialog">
       <div class="flex w-full max-w-2xl flex-col justify-center self-center rounded-md bg-current px-10 py-6">
         {todoListMembers().length > 0 && (
           <div>
@@ -203,6 +203,7 @@ export default function ShareTodoListForm(props: shareTodoListFormProps) {
               loading={shareTodoListForm.submitting}
               label="share"
               variant="primary"
+              data-testid="share-list-submit"
             />
           </div>
         </Form>

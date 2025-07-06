@@ -3,6 +3,7 @@ import { IconButton } from '../common/IconButton'
 import type { TodoList as TodoListType } from '../../state/todoListState'
 import { createSignal } from 'solid-js'
 import EditTodoListForm from '../forms/EditTodoListForm'
+import ShareTodoListForm from '../forms/ShareTodoListForm'
 import TodoListDeleteConfirmationDialog from './TodoListDeleteConfirmationDialog'
 import dialogUtil from '../../util/dialogUtil'
 import userState from '../../state/userState'
@@ -19,7 +20,7 @@ type TodoListProps = {
 const TodoList = (props: TodoListProps) => {
   const [user, _setUser] = userState
   const [showEditTodoListForm, setShowEditTodoListForm] = createSignal(false)
-  createSignal(false)
+  const shareModalId = `share-modal-${props.todoList.id}`
 
   const completionText =
     (props.todoList.todos?.length ?? 0 > 0)
@@ -81,6 +82,13 @@ const TodoList = (props: TodoListProps) => {
               }
             />
             <IconButton
+              icon="fluent:share-20-regular"
+              iconClass="text-green-600"
+              disabled={props.todoList.role !== 'owner'}
+              onClick={() => dialogUtil.open(shareModalId)}
+              data-testid="share-list-button"
+            />
+            <IconButton
               icon="fluent:delete-20-regular"
               iconClass="text-orange-700"
               disabled={props.todoList.role !== 'owner'}
@@ -99,6 +107,17 @@ const TodoList = (props: TodoListProps) => {
             onClose={() => dialogUtil.close(deleteConfirmationDialogId)}
             onDelete={(id) => {
               props.delete(id)
+            }}
+          />
+          <ShareTodoListForm
+            todoList={props.todoList}
+            dialogId={shareModalId}
+            onClose={() => dialogUtil.close(shareModalId)}
+            onSuccess={(newMembers) => {
+              props.update(props.todoList.id, {
+                ...props.todoList,
+                members: newMembers,
+              })
             }}
           />
         </div>
