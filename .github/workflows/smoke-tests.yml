@@ -45,72 +45,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y google-chrome-stable netcat-openbsd
 
-    - name: Create environment files
+    - name: Start application services
       run: |
-        # Ensure environment files exist
-        mkdir -p database backend
-        echo "POSTGRES_USER=postgres" > database/.dev.env
-        echo "POSTGRES_PASSWORD=840fb30f-e424-4a97-b58c-ef4433ebca85" >> database/.dev.env
-        echo "POSTGRES_DB=todo-app" >> database/.dev.env
-        echo "DATABASE_URL=postgresql://\${POSTGRES_USER}:\${POSTGRES_PASSWORD}@database:5432/\${POSTGRES_DB}" >> database/.dev.env
-        
-        echo "SECRET_KEY=test-secret-key-for-ci" > backend/.dev.env
-        echo "TOKEN_ENCRYPTION_ALGORITHM=HS256" >> backend/.dev.env
-        echo "ACCESS_TOKEN_EXPIRE_MINUTES=1440" >> backend/.dev.env
-        echo "REFRESH_TOKEN_EXPIRE_DAYS=30" >> backend/.dev.env
-
-    - name: Start application with Docker Compose
-      run: |
-        echo "Building and starting services..."
-        
-        # Build with verbose output to catch build issues
-        docker compose -f compose.dev.yml build --progress=plain
-        
-        echo "Starting services with health checks..."
-        docker compose -f compose.dev.yml up -d --wait
-        
-        echo "Immediate service status after startup:"
-        docker compose -f compose.dev.yml ps
-        
-        echo "Services started, waiting for full initialization..."
-        sleep 15
-
-    - name: Wait for services to be ready
-      run: |
-        echo "📊 Service status:"
-        docker compose -f compose.dev.yml ps
-        
-        echo "🔍 Checking individual service health..."
-        echo "Database migration logs:"
-        docker compose -f compose.dev.yml logs database-migration | tail -30
-        echo "Backend logs:"
-        docker compose -f compose.dev.yml logs backend | tail -50
-        echo "Database logs:"
-        docker compose -f compose.dev.yml logs database | tail -20
-        echo "Frontend logs:"
-        docker compose -f compose.dev.yml logs frontend | tail -20
-        
-        # Check migration status
-        migration_status=$(docker compose -f compose.dev.yml ps database-migration --format "{{.State}}")
-        echo "Migration status: $migration_status"
-        if [ "$migration_status" != "exited" ]; then
-          echo "❌ Database migration did not complete successfully!"
-          echo "Migration logs:"
-          docker compose -f compose.dev.yml logs database-migration
-          exit 1
-        fi
-        
-        # Check if backend container is running
-        if ! docker compose -f compose.dev.yml ps backend | grep -q "Up"; then
-          echo "❌ Backend container is not running!"
-          echo "Full backend logs:"
-          docker compose -f compose.dev.yml logs backend
-          exit 1
-        fi
-        
-        # Use the robust health check script
-        chmod +x ./e2e-tests/wait-for-services.sh
-        ./e2e-tests/wait-for-services.sh
+        # Use the robust CI startup script
+        chmod +x ./start-services-ci.sh
+        ./start-services-ci.sh
 
     - name: Run API Smoke Tests
       working-directory: ./backend/api-tests

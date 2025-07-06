@@ -1,0 +1,15 @@
+FROM python:3.12-alpine
+
+WORKDIR /migration
+
+# Install psycopg (PostgreSQL adapter for Python)
+RUN pip install psycopg[binary]
+
+# Copy migration script and SQL files
+COPY migrate.py .
+COPY sql/ ./sql/
+
+# Make script executable
+RUN chmod +x migrate.py
+
+ENTRYPOINT ["python", "migrate.py"]

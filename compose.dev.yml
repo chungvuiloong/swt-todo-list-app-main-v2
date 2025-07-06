@@ -54,7 +54,9 @@ services:
       timeout: 1s
       retries: 15
   database-migration:
-    build: database/migration/
+    build:
+      context: database/migration/
+      dockerfile: Dockerfile.fast
     env_file:
       - database/.dev.env
     depends_on:
@@ -62,4 +64,3 @@ services:
         condition: service_healthy
     volumes:
       - ./database/migration/sql:/migration/sql
-    command: "migrate -e DATABASE_URL -p /migration/sql"
