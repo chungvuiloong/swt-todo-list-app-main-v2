@@ -50,6 +50,34 @@ jobs:
         # Use the robust CI startup script
         chmod +x ./start-services-ci.sh
         ./start-services-ci.sh
+        
+    - name: Verify services are accessible
+      run: |
+        echo "🔍 Post-startup verification..."
+        echo "Docker containers status:"
+        docker compose -f compose.dev.yml ps
+        
+        echo "Testing frontend accessibility..."
+        if curl -f http://localhost:4321 >/dev/null 2>&1; then
+          echo "✅ Frontend is accessible"
+        else
+          echo "❌ Frontend is not accessible"
+          docker compose -f compose.dev.yml logs frontend
+        fi
+        
+        echo "Testing backend accessibility..."
+        if curl -f http://localhost:4322/health >/dev/null 2>&1; then
+          echo "✅ Backend is accessible"
+        else
+          echo "❌ Backend is not accessible"
+          echo "Backend container status:"
+          docker compose -f compose.dev.yml ps backend
+          echo "Backend logs:"
+          docker compose -f compose.dev.yml logs backend
+          echo "Port check:"
+          nc -z localhost 4322 && echo "Port 4322 is open" || echo "Port 4322 is closed"
+          exit 1
+        fi
 
     - name: Run API Smoke Tests
       working-directory: ./backend/api-tests
