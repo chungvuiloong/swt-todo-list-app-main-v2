@@ -34,7 +34,7 @@ const TodoList = (props: TodoListProps) => {
   const deleteConfirmationDialogId = `todo-list-delete-confirmation-${props.todoList.id}`
 
   return (
-    <div class="flex max-w-full items-center justify-between border-t-2 border-gray-200 pb-4 pt-4">
+    <div class="flex max-w-full items-center justify-between border-t-2 border-gray-200 pb-4 pt-4" data-testid="todo-list" data-name={props.todoList.name}>
       {showEditTodoListForm() ? (
         <EditTodoListForm
           todoListIndex={props.index}

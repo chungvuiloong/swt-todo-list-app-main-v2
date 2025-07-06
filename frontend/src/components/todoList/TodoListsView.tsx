@@ -100,6 +100,7 @@ export default function TodoLists() {
               icon="fluent:form-new-20-regular"
               iconClass="mr-2 text-yellow-500"
               label="New todo list"
+              data-testid="create-list-button"
               onClick={() => {
                 return setShowNewTodoListForm(true)
               }}

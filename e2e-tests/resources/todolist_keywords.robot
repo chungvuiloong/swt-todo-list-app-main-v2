@@ -5,9 +5,9 @@ Resource    auth_keywords.robot
 *** Keywords ***
 Navigate To Todo Lists Page
     [Documentation]    Navigates to the todo lists page
-    Go To    ${TODOS_URL}
+    Go To    ${TODO_LISTS_URL}
     Wait For Page To Load
-    Page Should Contain Element    css:[data-testid="todos-page"]
+    Page Should Contain Element    css:[data-testid="todo-lists-page"]
 
 Open Create Todo List Dialog
     [Documentation]    Opens the create todo list dialog

@@ -106,4 +106,4 @@ Verify Create Todo Item Error
 Navigate Back To Todo Lists
     [Documentation]    Navigates back to the todo lists page from todo list view
     Wait For Element And Click    css:[data-testid="back-to-lists-button"]
-    Wait Until Element Is Visible    css:[data-testid="todos-page"]    ${MEDIUM_TIMEOUT}
+    Wait Until Element Is Visible    css:[data-testid="todo-lists-page"]    ${MEDIUM_TIMEOUT}

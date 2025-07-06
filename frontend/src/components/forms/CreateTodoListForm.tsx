@@ -41,7 +41,7 @@ export default function CreateTodoListForm(props: CreateTodoListFormProps) {
   }
 
   return (
-    <div class="flex self-center max-w-md w-full flex-col justify-center">
+    <div class="flex self-center max-w-md w-full flex-col justify-center" data-testid="create-list-dialog">
       <div class="container prose mb-8">
         <h1>Create a new todo list</h1>
       </div>
@@ -90,6 +90,7 @@ export default function CreateTodoListForm(props: CreateTodoListFormProps) {
             loading={createTodoListForm.submitting}
             label="Create"
             variant="primary"
+            data-testid="create-list-submit"
           />
         </div>
       </Form>
