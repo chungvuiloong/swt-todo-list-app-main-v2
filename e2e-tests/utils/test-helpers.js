@@ -14,7 +14,7 @@ class TestHelpers {
     const submitButton = this.page.locator('button[type="submit"]').last();
     await submitButton.click();
     
-    await this.page.waitForTimeout(1000);
+    await this.page.waitForURL('/todo-lists', { timeout: 10000 });
   }
 
   async loginUser(username, password) {
@@ -26,7 +26,7 @@ class TestHelpers {
     const submitButton = this.page.locator('button[type="submit"]').last();
     await submitButton.click();
     
-    await this.page.waitForTimeout(1000);
+    await this.page.waitForURL('/todo-lists', { timeout: 10000 });
   }
 
   async logout() {

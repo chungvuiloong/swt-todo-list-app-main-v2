@@ -11,7 +11,6 @@ test.describe('Todo List Sharing - Simplified', () => {
     password = helpers.generateTestPassword();
     listName = `Test List ${Date.now()}`;
     
-    // Register and login for each test
     await helpers.registerUser(username, password);
     await page.waitForTimeout(2000);
     await expect(page).toHaveURL('/todo-lists');
@@ -21,13 +20,10 @@ test.describe('Todo List Sharing - Simplified', () => {
 
   test.describe('Share Dialog Functionality', () => {
     test('should open share dialog when share button is clicked @smoke', async ({ page }) => {
-      // Try to find and click share button
       const listElement = page.locator('[data-testid="todo-list"]').filter({ hasText: listName });
       
-      // Check if list exists first
       await expect(listElement).toBeVisible();
       
-      // Look for share button (might have different selector)
       const shareButton = listElement.locator('button').filter({ hasText: /share/i }).or(
         listElement.locator('[data-testid*="share"]')
       ).or(
@@ -38,14 +34,7 @@ test.describe('Todo List Sharing - Simplified', () => {
         await shareButton.click();
         await page.waitForTimeout(1000);
         
-        // Check if share dialog or form appears
-        const shareDialog = page.locator('[data-testid*="share"]').or(
-          page.locator('dialog').or(
-            page.locator('.modal').or(
-              page.locator('form').filter({ hasText: /share/i })
-            )
-          )
-        );
+        const shareDialog = page.locator('[data-testid="share-list-dialog"]');
         
         if (await shareDialog.isVisible()) {
           await expect(shareDialog).toBeVisible();
@@ -54,7 +43,6 @@ test.describe('Todo List Sharing - Simplified', () => {
         }
       } else {
         console.log('Share button not found - checking if sharing is available for this user/list');
-        // Just verify the list exists
         await expect(listElement).toBeVisible();
       }
     });
@@ -62,7 +50,6 @@ test.describe('Todo List Sharing - Simplified', () => {
     test('should show user search input in share dialog', async ({ page }) => {
       const listElement = page.locator('[data-testid="todo-list"]').filter({ hasText: listName });
       
-      // Try to open share functionality
       const shareButton = listElement.locator('button').filter({ hasText: /share/i }).or(
         listElement.locator('[data-testid*="share"]')
       ).first();
@@ -71,7 +58,6 @@ test.describe('Todo List Sharing - Simplified', () => {
         await shareButton.click();
         await page.waitForTimeout(1000);
         
-        // Look for user search input
         const userSearchInput = page.locator('[data-testid="user-search-input"]').or(
           page.locator('input[placeholder*="user"]').or(
             page.locator('input[placeholder*="search"]').or(
@@ -98,7 +84,6 @@ test.describe('Todo List Sharing - Simplified', () => {
       const listElement = page.locator('[data-testid="todo-list"]').filter({ hasText: listName });
       await expect(listElement).toBeVisible();
       
-      // Try to access sharing
       const shareButton = listElement.locator('button').filter({ hasText: /share/i }).or(
         listElement.locator('[data-testid*="share"]')
       ).first();
@@ -107,7 +92,6 @@ test.describe('Todo List Sharing - Simplified', () => {
         await shareButton.click();
         await page.waitForTimeout(1000);
         
-        // Try to fill user search if available
         const userInput = page.locator('[data-testid="user-search-input"]').or(
           page.locator('input[placeholder*="user"]')
         ).first();
@@ -116,7 +100,6 @@ test.describe('Todo List Sharing - Simplified', () => {
           await userInput.fill(testRecipient);
           await page.waitForTimeout(500);
           
-          // Try to submit if submit button exists
           const submitButton = page.locator('[data-testid*="share"]').filter({ hasText: /submit|share/i }).or(
             page.locator('button[type="submit"]')
           ).first();
@@ -125,7 +108,6 @@ test.describe('Todo List Sharing - Simplified', () => {
             await submitButton.click();
             await page.waitForTimeout(1000);
             
-            // Check for any response (success message, error, or dialog closure)
             console.log('Share attempt completed');
           }
         }
@@ -133,7 +115,6 @@ test.describe('Todo List Sharing - Simplified', () => {
         console.log('Share button not found - user may not have share permissions');
       }
       
-      // Verify we're still on the todo lists page
       await expect(page).toHaveURL('/todo-lists');
     });
   });
@@ -143,7 +124,6 @@ test.describe('Todo List Sharing - Simplified', () => {
       const listElement = page.locator('[data-testid="todo-list"]').filter({ hasText: listName });
       await expect(listElement).toBeVisible();
       
-      // Check if any share-related button exists
       const shareButton = listElement.locator('button').filter({ hasText: /share/i }).or(
         listElement.locator('[data-testid*="share"]').or(
           listElement.locator('button[title*="share"]').or(
@@ -159,7 +139,6 @@ test.describe('Todo List Sharing - Simplified', () => {
         console.log('Share button found and visible');
       } else {
         console.log('No share button found - sharing may not be implemented or uses different UI pattern');
-        // Just verify the list exists
         await expect(listElement).toBeVisible();
       }
     });
