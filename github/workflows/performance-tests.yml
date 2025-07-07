@@ -1,0 +1,103 @@
+name: Performance Tests
+
+on:
+  push:
+    branches: [ another-e2e ]
+  pull_request:
+    branches: [ another-e2e ]
+  schedule:
+    # Run weekly on Sundays at 3 AM UTC
+    - cron: '0 3 * * 0'
+
+jobs:
+  lighthouse-performance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install Lighthouse CI
+      run: npm install -g @lhci/cli
+
+    - name: Start application services
+      run: |
+        docker compose -f compose.dev.yml up -d
+
+    - name: Wait for frontend to be ready
+      run: |
+        timeout 300 bash -c 'until curl -f http://localhost:4321 >/dev/null 2>&1; do sleep 5; done'
+
+    - name: Run Lighthouse performance tests
+      run: |
+        lhci autorun --config lighthouserc.json || true
+
+    - name: Upload Lighthouse reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: lighthouse-reports
+        path: .lighthouseci/
+        retention-days: 30
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose -f compose.dev.yml down
+
+  security-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  dependency-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        cd frontend && npm ci
+        cd ../e2e-tests && npm ci
+
+    - name: Run npm audit
+      run: |
+        cd frontend && npm audit --audit-level=moderate || true
+        cd ../e2e-tests && npm audit --audit-level=moderate || true
+
+    - name: Run dependency vulnerability check
+      run: |
+        npm install -g audit-ci
+        cd frontend && audit-ci --moderate || true
+        cd ../e2e-tests && audit-ci --moderate || true

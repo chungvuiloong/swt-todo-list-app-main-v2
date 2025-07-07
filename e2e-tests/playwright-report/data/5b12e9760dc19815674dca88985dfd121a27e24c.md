@@ -1,0 +1,54 @@
+# Page snapshot
+
+```yaml
+- navigation:
+  - img
+  - text: Todo Manager
+  - link "My todo lists":
+    - /url: /todo-lists
+    - img
+    - text: My todo lists
+  - img
+  - text: test_1751876213540_xbu9k
+  - button "Logout"
+- main:
+  - heading "My todo lists" [level=1]
+  - button "New todo list":
+    - img
+    - text: New todo list
+  - link "Original List 1751876216867 Original description no todos":
+    - /url: /todos
+    - text: Original List 1751876216867 Original description no todos
+    - img
+  - button:
+    - img
+  - button:
+    - img
+  - button:
+    - img
+  - button:
+    - img
+  - dialog:
+    - heading "Deleting todo list \"Original List 1751876216867\"" [level=1]
+    - paragraph: Are you sure you want to delete this todo list?
+    - button "Cancel"
+    - button "Delete"
+- contentinfo:
+  - text: Made with ❤️ , 😓, 🥲 and
+  - list:
+    - listitem:
+      - link "Astro":
+        - /url: https://astro.build
+    - listitem:
+      - link "SolidJS":
+        - /url: https://solidjs.com
+    - listitem:
+      - link "TailwindCSS":
+        - /url: https://tailwindcss.com
+    - listitem:
+      - link "DaisyUI":
+        - /url: https://daisyui.com
+    - listitem:
+      - link "Iconify":
+        - /url: https://iconify.design
+```

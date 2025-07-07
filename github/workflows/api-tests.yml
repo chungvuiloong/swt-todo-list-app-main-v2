@@ -1,0 +1,58 @@
+name: API Tests
+
+on:
+  push:
+    branches: [ another-e2e ]
+  pull_request:
+    branches: [ another-e2e ]
+  schedule:
+    # Run nightly at 2:30 AM UTC
+    - cron: '30 2 * * *'
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install Robot Framework dependencies
+      run: |
+        pip install robotframework
+        pip install robotframework-requests
+
+    - name: Start application services  
+      run: |
+        docker compose -f compose.dev.yml up -d
+
+    - name: Wait for backend to be ready
+      run: |
+        timeout 300 bash -c 'until curl -f http://localhost:4322/health >/dev/null 2>&1; do sleep 5; done'
+
+    - name: Run API tests
+      run: |
+        robot backend/api-tests/
+
+    - name: Upload Robot Framework reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: robot-reports
+        path: |
+          log.html
+          output.xml
+          report.html
+        retention-days: 30
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose -f compose.dev.yml down
+        docker system prune -f
