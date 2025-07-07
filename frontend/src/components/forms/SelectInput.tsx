@@ -54,6 +54,7 @@ export function SelectInput(props: SelectProps) {
           name={props.name}
           aria-invalid={!!props.error}
           aria-errormessage={`${props.name}-error`}
+          data-testid={props['data-testid']}
         >
         </Select>
         <Show when={!props.multiple}>
