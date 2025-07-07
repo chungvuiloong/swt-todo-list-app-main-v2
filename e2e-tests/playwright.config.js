@@ -31,7 +31,7 @@ module.exports = defineConfig({
   webServer: {
     command: 'cd .. && docker compose -f compose.dev.yml up -d',
     url: 'http://localhost:4321',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     timeout: 120 * 1000,
   },
 });
