@@ -1,8 +1,0 @@
-<!DOCTYPE html><!-- <BaseLayout title="Home" description="Home page"> --><link rel="stylesheet" href="/_astro/index.UDLyzn4v.css"><div class="flex h-screen flex-col items-center justify-center"> <h1 class="text-4xl font-bold">Redirecting...</h1> </div> <!-- </BaseLayout> --> <script>
-  const username = JSON.parse(localStorage.getItem('userData') ?? '{}')?.username
-  if (username) {
-    location.assign('/todos')
-  } else {
-    location.assign('/login')
-  }
-</script>
