@@ -1,0 +1,54 @@
+# Page snapshot
+
+```yaml
+- navigation:
+  - img
+  - text: Todo Manager
+  - link "My todo lists":
+    - /url: /todo-lists
+    - img
+    - text: My todo lists
+  - img
+  - img
+  - text: Test List 1751877233814
+  - button "Share":
+    - img
+    - img
+    - text: Share
+  - img
+  - text: test_1751877233814_isnd5w
+  - button "Logout"
+- main:
+  - heading "Test List 1751877233814" [level=1]
+  - paragraph
+  - button "New task":
+    - img
+    - text: New task
+  - checkbox [checked]
+  - text: Completed task to delete 1751877240518
+  - button:
+    - img
+  - button:
+    - img
+  - button:
+    - img
+- contentinfo:
+  - text: Made with ❤️ , 😓, 🥲 and
+  - list:
+    - listitem:
+      - link "Astro":
+        - /url: https://astro.build
+    - listitem:
+      - link "SolidJS":
+        - /url: https://solidjs.com
+    - listitem:
+      - link "TailwindCSS":
+        - /url: https://tailwindcss.com
+    - listitem:
+      - link "DaisyUI":
+        - /url: https://daisyui.com
+    - listitem:
+      - link "Iconify":
+        - /url: https://iconify.design
+- text: Test List 1751877233814
+```
