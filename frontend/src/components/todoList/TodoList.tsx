@@ -20,6 +20,7 @@ type TodoListProps = {
 const TodoList = (props: TodoListProps) => {
   const [user, _setUser] = userState
   const [showEditTodoListForm, setShowEditTodoListForm] = createSignal(false)
+  const [showShareDialog, setShowShareDialog] = createSignal(false)
   const shareModalId = `share-modal-${props.todoList.id}`
 
   const completionText =
@@ -85,7 +86,7 @@ const TodoList = (props: TodoListProps) => {
               icon="fluent:share-20-regular"
               iconClass="text-green-600"
               disabled={props.todoList.role !== 'owner'}
-              onClick={() => dialogUtil.open(shareModalId)}
+              onClick={() => setShowShareDialog(true)}
               data-testid="share-list-button"
             />
             <IconButton
@@ -109,19 +110,21 @@ const TodoList = (props: TodoListProps) => {
               props.delete(id)
             }}
           />
-          <ShareTodoListForm
-            todoList={props.todoList}
-            dialogId={shareModalId}
-            onClose={() => dialogUtil.close(shareModalId)}
-            onSuccess={(newMembers) => {
-              props.update(props.todoList.id, {
-                ...props.todoList,
-                members: newMembers,
-              })
-            }}
-          />
         </div>
       )}
+      <ShareTodoListForm
+        todoList={props.todoList}
+        dialogId={shareModalId}
+        isOpen={showShareDialog()}
+        onClose={() => setShowShareDialog(false)}
+        onSuccess={(newMembers) => {
+          props.update(props.todoList.id, {
+            ...props.todoList,
+            members: newMembers,
+          })
+          setShowShareDialog(false)
+        }}
+      />
     </div>
   )
 }

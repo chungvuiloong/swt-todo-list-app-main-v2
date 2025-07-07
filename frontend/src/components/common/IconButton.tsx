@@ -11,6 +11,7 @@ type IconButtonProps = {
   type?: 'button' | 'submit' | 'reset'
   iconClass?: JSX.HTMLAttributes<HTMLElement>['class']
   disabled?: boolean
+  'data-testid'?: string
 }
 
 /**
@@ -30,7 +31,10 @@ export function IconButton(props: IconButtonProps) {
   return (
     <button
       class={props.disabled ? "relative ml-3 px-1.5 py-1.5" : "relative ml-3 flex items-center justify-center px-1.5 py-1.5 font-medium md:text-md lg:rounded-lg lg:text-lg hover:ring-2 focus-visible:ring-blue-500 focus-visible:ring-opacity-75"}
-      {...props}
+      type={props.type || 'button'}
+      onClick={props.onClick}
+      disabled={props.disabled}
+      data-testid={props['data-testid']}
     >
       <Show when={props.loading} fallback={ButtonContent()}>
         <Spinner label={`${props.label} is loading`} />

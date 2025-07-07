@@ -28,6 +28,7 @@ const TodoItem = (props: TodoItemProps) => {
       }}
       data-testid="todo-item"
       data-description={todoItem.description}
+      data-completed={todoItem.completed.toString()}
     >
       {props.editState ? (
         <EditTodoItemForm
@@ -42,12 +43,21 @@ const TodoItem = (props: TodoItemProps) => {
         />
       ) : (
         <>
-          <span
-            class="scroll-ms-4 overflow-x-auto whitespace-pre-wrap text-xl"
-            onClick={() => props.toggleComplete(index)}
-          >
-            {todoItem.description}
-          </span>
+          <div class="flex items-center">
+            <input
+              type="checkbox"
+              checked={todoItem.completed}
+              onChange={() => props.toggleComplete(index)}
+              data-testid="completion-checkbox"
+              class="mr-3 h-5 w-5"
+            />
+            <span
+              class="scroll-ms-4 overflow-x-auto whitespace-pre-wrap text-xl"
+              onClick={() => props.toggleComplete(index)}
+            >
+              {todoItem.description}
+            </span>
+          </div>
           <div class="flex">
             <IconButton
               icon="fluent:copy-20-regular"
@@ -58,6 +68,7 @@ const TodoItem = (props: TodoItemProps) => {
               icon="fluent:edit-20-regular"
               iconClass="text-yellow-600"
               onClick={() => props.updateEditState(index, {description: todoItem.description})}
+              data-testid="edit-item-button"
             />
             <IconButton
               icon="fluent:delete-20-regular"

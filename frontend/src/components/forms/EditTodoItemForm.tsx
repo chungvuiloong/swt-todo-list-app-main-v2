@@ -60,7 +60,7 @@ export default function EditTodoItemForm(props: EditTodoItemFormProps) {
   }
 
   return (
-    <div class="flex flex-grow flex-col justify-center self-center ">
+    <div class="flex flex-grow flex-col justify-center self-center " data-testid="edit-item-dialog">
       <FormError error={submitError()} formName="editTodoItem" />
       <Form onSubmit={handleSubmit}>
         <div class="flex">

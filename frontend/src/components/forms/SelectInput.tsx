@@ -22,6 +22,7 @@ type SelectProps = {
   class?: string
   label?: string
   error?: string
+  'data-testid'?: string
 }
 
 /**
@@ -31,7 +32,7 @@ type SelectProps = {
  */
 export function SelectInput(props: SelectProps) {
   // Split select element props
-  const [, selectProps] = splitProps(props, ['ref', 'onInput', 'class', 'value', 'label', 'error'])
+  const [, selectProps] = splitProps(props, ['ref', 'onInput', 'class', 'value', 'label', 'error', 'data-testid'])
 
   return (
     <div class={clsx('px-8 lg:px-10', props.class)}>

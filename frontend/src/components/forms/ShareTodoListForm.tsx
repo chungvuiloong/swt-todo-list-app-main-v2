@@ -7,7 +7,7 @@ import todoActions, {
 } from '../../http-actions/todoActions'
 import userActions, { type UserDto } from '../../http-actions/userActions'
 import { FormError } from './FormError'
-import { createSignal, onMount } from 'solid-js'
+import { createSignal, onMount, Show, createEffect } from 'solid-js'
 import { SelectInput } from './SelectInput'
 import '@thisbeyond/solid-select/style.css'
 import type { TodoList } from '../../state/todoListState'
@@ -23,6 +23,7 @@ type shareTodoListFormProps = {
   todoList: TodoList
   onClose: () => void
   onSuccess: (members: TodoListMemberDto[]) => void
+  isOpen?: boolean
 }
 
 export default function ShareTodoListForm(props: shareTodoListFormProps) {
@@ -30,11 +31,19 @@ export default function ShareTodoListForm(props: shareTodoListFormProps) {
   const [todoListMembers, setTodoListMembers] = createSignal<
     TodoListMemberDto[]
   >([])
+  const [isVisible, setIsVisible] = createSignal(props.isOpen || false)
   const [shareTodoListForm, { Form, Field }] = createForm<shareTodoListForm>()
   const [submitError, setSubmitError] = createSignal<string | undefined>()
   const [userOptions, setUserOptions] = createSignal<UserDto[]>([])
   const [todoListRoles, setTodoListRoles] = createSignal<TodoListRoleDto[]>([])
   const [shareSuccess, setShareSuccess] = createSignal(false)
+
+  // Sync visibility with props
+  createEffect(() => {
+    if (props.isOpen !== undefined) {
+      setIsVisible(props.isOpen)
+    }
+  })
 
   onMount(() => {
     todoActions.fetchTodoListRoles().then((roles) => {
@@ -103,7 +112,18 @@ export default function ShareTodoListForm(props: shareTodoListFormProps) {
   }
 
   return (
-    <dialog id={props.dialogId} class="modal" data-testid="share-list-dialog">
+    <Show when={isVisible()}>
+      <div 
+        id={props.dialogId}
+        data-testid="share-list-dialog"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            setIsVisible(false)
+            props.onClose()
+          }
+        }}
+      >
       <div class="flex w-full max-w-2xl flex-col justify-center self-center rounded-md bg-current px-10 py-6">
         {todoListMembers().length > 0 && (
           <div>
@@ -166,6 +186,7 @@ export default function ShareTodoListForm(props: shareTodoListFormProps) {
                 required
                 placeholder="Type to search for users"
                 error={field.error}
+                data-testid="user-search-input"
               />
             )}
           </Field>
@@ -197,7 +218,10 @@ export default function ShareTodoListForm(props: shareTodoListFormProps) {
               loading={shareTodoListForm.submitting}
               label="Close"
               variant="secondary"
-              onClick={() => props.onClose?.()}
+              onClick={() => {
+                setIsVisible(false)
+                props.onClose?.()
+              }}
             />
             <ActionButton
               loading={shareTodoListForm.submitting}
@@ -208,6 +232,7 @@ export default function ShareTodoListForm(props: shareTodoListFormProps) {
           </div>
         </Form>
       </div>
-    </dialog>
+      </div>
+    </Show>
   )
 }
