@@ -9,23 +9,16 @@
     - img
     - text: My todo lists
   - img
-  - img
-  - text: Shared List 1751876406603
-  - button "Share":
-    - img
-    - img
-    - text: Share
-  - img
-  - text: test_1751876406603_1vvg6
+  - text: test_1751876812161_drp36
   - button "Logout"
 - main:
   - heading "My todo lists" [level=1]
   - button "New todo list":
     - img
     - text: New todo list
-  - link "Shared List 1751876406603 A list to be shared 0/2 completed":
+  - link "Shared List 1751876812161 A list to be shared no todos":
     - /url: /todos
-    - text: Shared List 1751876406603 A list to be shared 0/2 completed
+    - text: Shared List 1751876812161 A list to be shared no todos
     - img
   - button:
     - img
@@ -36,8 +29,8 @@
   - button:
     - img
   - dialog:
-    - heading "Deleting todo list \"Shared List 1751876406603\"" [level=1]
-    - paragraph: This todo list is not empty. Are you sure you want to delete this todo list?
+    - heading "Deleting todo list \"Shared List 1751876812161\"" [level=1]
+    - paragraph: Are you sure you want to delete this todo list?
     - button "Cancel"
     - button "Delete"
   - heading "Share todo list" [level=1]

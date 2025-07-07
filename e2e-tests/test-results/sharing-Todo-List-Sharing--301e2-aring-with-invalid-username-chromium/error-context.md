@@ -4,22 +4,49 @@
 - navigation:
   - img
   - text: Todo Manager
+  - link "My todo lists":
+    - /url: /todo-lists
+    - img
+    - text: My todo lists
   - img
-  - text: Login or sign up to get started
+  - text: test_1751876781811_znor1
+  - button "Logout"
 - main:
-  - heading "Register an account" [level=1]
-  - paragraph: An account is needed to use the Todo Manager.
-  - paragraph:
-    - text: In case you already have an account, please login through
-    - link "here":
-      - /url: /login
-    - text: or through the button below on the left.
-  - text: Username
-  - textbox "Username"
-  - text: Password
-  - textbox "Password"
-  - button "To Login"
-  - button "Register"
+  - heading "My todo lists" [level=1]
+  - button "New todo list":
+    - img
+    - text: New todo list
+  - link "Shared List 1751876781811 A list to be shared no todos":
+    - /url: /todos
+    - text: Shared List 1751876781811 A list to be shared no todos
+    - img
+  - button:
+    - img
+  - button:
+    - img
+  - button:
+    - img
+  - button:
+    - img
+  - dialog:
+    - heading "Deleting todo list \"Shared List 1751876781811\"" [level=1]
+    - paragraph: Are you sure you want to delete this todo list?
+    - button "Cancel"
+    - button "Delete"
+  - heading "Share todo list" [level=1]
+  - text: Edit permissions
+  - button "Shared with":
+    - text: Shared with
+    - img
+    - img
+  - list
+  - text: Add users * Type to search for users
+  - textbox "Add users *"
+  - text: Role editor
+  - textbox "Role"
+  - img
+  - button "Close"
+  - button "share"
 - contentinfo:
   - text: Made with ❤️ , 😓, 🥲 and
   - list:
@@ -38,5 +65,4 @@
     - listitem:
       - link "Iconify":
         - /url: https://iconify.design
-- text: Register an account
 ```

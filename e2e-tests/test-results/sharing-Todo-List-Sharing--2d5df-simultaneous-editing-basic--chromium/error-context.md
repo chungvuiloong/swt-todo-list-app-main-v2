@@ -1,0 +1,42 @@
+# Page snapshot
+
+```yaml
+- navigation:
+  - img
+  - text: Todo Manager
+  - img
+  - text: Login or sign up to get started
+- main:
+  - heading "Welcome to Todo Manager" [level=1]
+  - paragraph: Please login to use the application.
+  - paragraph:
+    - text: In case you do not have an account, you can register through
+    - link "here":
+      - /url: /register
+    - text: or through the button below on the left.
+  - text: Username
+  - textbox "Username"
+  - text: Password
+  - textbox "Password"
+  - button "To Registration"
+  - button "Login"
+- contentinfo:
+  - text: Made with ❤️ , 😓, 🥲 and
+  - list:
+    - listitem:
+      - link "Astro":
+        - /url: https://astro.build
+    - listitem:
+      - link "SolidJS":
+        - /url: https://solidjs.com
+    - listitem:
+      - link "TailwindCSS":
+        - /url: https://tailwindcss.com
+    - listitem:
+      - link "DaisyUI":
+        - /url: https://daisyui.com
+    - listitem:
+      - link "Iconify":
+        - /url: https://iconify.design
+- text: Welcome to Todo Manager
+```

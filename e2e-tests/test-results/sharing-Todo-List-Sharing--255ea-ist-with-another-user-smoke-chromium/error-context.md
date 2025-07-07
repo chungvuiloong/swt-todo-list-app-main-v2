@@ -9,16 +9,16 @@
     - img
     - text: My todo lists
   - img
-  - text: test_1751876403759_cqv2zs
+  - text: test_1751876776359_lju6y
   - button "Logout"
 - main:
   - heading "My todo lists" [level=1]
   - button "New todo list":
     - img
     - text: New todo list
-  - link "Shared List 1751876403759 A list to be shared no todos":
+  - link "Shared List 1751876776359 A list to be shared no todos":
     - /url: /todos
-    - text: Shared List 1751876403759 A list to be shared no todos
+    - text: Shared List 1751876776359 A list to be shared no todos
     - img
   - button:
     - img
@@ -29,7 +29,7 @@
   - button:
     - img
   - dialog:
-    - heading "Deleting todo list \"Shared List 1751876403759\"" [level=1]
+    - heading "Deleting todo list \"Shared List 1751876776359\"" [level=1]
     - paragraph: Are you sure you want to delete this todo list?
     - button "Cancel"
     - button "Delete"
