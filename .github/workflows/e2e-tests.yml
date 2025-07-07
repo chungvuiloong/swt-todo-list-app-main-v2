@@ -163,7 +163,7 @@ jobs:
         curl -f http://localhost:4322/api/todo-lists/roles >/dev/null && echo "✅ Backend API OK" || echo "❌ Backend API failed"
 
     - name: Run E2E Tests
-      working-directory: ./e2e-tests
+      working-directory: e2e-tests
       run: |
         robot --outputdir results \
               --variable HEADLESS:True \
@@ -335,7 +335,7 @@ jobs:
         curl -f http://localhost:4322/api/todo-lists/roles >/dev/null && echo "✅ Backend API OK" || echo "❌ Backend API failed"
 
     - name: Run Full E2E Test Suite
-      working-directory: ./e2e-tests
+      working-directory: e2e-tests
       run: |
         robot --outputdir results \
               --variable HEADLESS:True \
