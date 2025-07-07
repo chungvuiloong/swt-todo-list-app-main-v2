@@ -1,3 +1,6 @@
+# Project is too big to be zip.
+https://github.com/chungvuiloong/swt-todo-list-app-main-v2/
+
 # Test Plan for Todo List Application
 
 ## Overview
