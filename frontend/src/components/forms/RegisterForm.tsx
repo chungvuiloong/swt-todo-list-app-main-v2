@@ -1,4 +1,4 @@
-import { createForm, minLength, required, type SubmitHandler } from '@modular-forms/solid'
+import { createForm, minLength, required, type SubmitHandler, validate } from '@modular-forms/solid'
 import { TextInput } from './TextInput'
 import userState from '../../state/userState'
 import { ActionButton } from '../common/ActionButton'
@@ -12,13 +12,17 @@ type RegisterForm = {
 }
 
 export default function RegisterForm() {
-  const [registerForm, { Form, Field }] = createForm<RegisterForm>()
+  const [registerForm, { Form, Field }] = createForm<RegisterForm>({
+    validateOn: 'submit',
+    revalidateOn: 'touched'
+  })
   const [user, setUser] = userState
   const [registerError, setRegisterError] = createSignal<string | undefined>()
 
   const handleSubmit: SubmitHandler<RegisterForm> = (values, event) => {
     event.preventDefault()
     console.log('submitting register form with values:', values)
+    
     userActions
       .createUser(values)
       .then((userAuthData) => {
@@ -59,7 +63,6 @@ export default function RegisterForm() {
                 type="text"
                 value={field.value}
                 error={field.error}
-                required
               />
             </>
           )}
@@ -79,7 +82,6 @@ export default function RegisterForm() {
                 type="password"
                 value={field.value}
                 error={field.error}
-                required
               />
             </>
           )}

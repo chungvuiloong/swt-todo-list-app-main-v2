@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot generator="Robot 6.1.1 (Python 3.12.5 on darwin)" generated="20250706 14:13:01.021" rpa="false" schemaversion="4">
+<robot generator="Robot 7.3.2 (Python 3.13.5 on darwin)" generated="2025-07-07T09:41:08.694039" rpa="false" schemaversion="5">
 <suite id="s1" name="Auth Tests" source="/Users/MrJay/Documents/playground/swt-todo-list-app-main/e2e-tests/tests/auth_tests.robot">
-<kw name="Clear Application Data" library="common" type="SETUP">
-<tag>setup</tag>
-<doc>Clears application data by restarting containers</doc>
-<kw name="Run Process" library="Process">
+<kw name="Clear Application Data" owner="common" type="SETUP">
+<kw name="Run Process" owner="Process">
+<msg time="2025-07-07T09:41:08.876115" level="INFO">Starting process:
+docker compose -f compose.dev.yml down</msg>
+<msg time="2025-07-07T09:41:08.878392" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-07-07T09:41:10.882188" level="INFO">Process completed.</msg>
 <arg>docker</arg>
 <arg>compose</arg>
 <arg>-f</arg>
@@ -13,13 +15,13 @@
 <arg>shell=True</arg>
 <arg>cwd=${EXECDIR}/..</arg>
 <doc>Runs a process and waits for it to complete.</doc>
-<msg timestamp="20250706 14:13:01.192" level="INFO">Starting process:
-docker compose -f compose.dev.yml down</msg>
-<msg timestamp="20250706 14:13:01.197" level="INFO">Waiting for process to complete.</msg>
-<msg timestamp="20250706 14:13:03.523" level="INFO">Process completed.</msg>
-<status status="PASS" starttime="20250706 14:13:01.192" endtime="20250706 14:13:03.524"/>
+<status status="PASS" start="2025-07-07T09:41:08.875958" elapsed="2.006638"/>
 </kw>
-<kw name="Run Process" library="Process">
+<kw name="Run Process" owner="Process">
+<msg time="2025-07-07T09:41:10.883617" level="INFO">Starting process:
+docker compose -f compose.dev.yml up -d</msg>
+<msg time="2025-07-07T09:41:10.885491" level="INFO">Waiting for process to complete.</msg>
+<msg time="2025-07-07T09:41:48.063378" level="INFO">Process completed.</msg>
 <arg>docker</arg>
 <arg>compose</arg>
 <arg>-f</arg>
@@ -29,47 +31,33 @@ docker compose -f compose.dev.yml down</msg>
 <arg>shell=True</arg>
 <arg>cwd=${EXECDIR}/..</arg>
 <doc>Runs a process and waits for it to complete.</doc>
-<msg timestamp="20250706 14:13:03.525" level="INFO">Starting process:
-docker compose -f compose.dev.yml up -d</msg>
-<msg timestamp="20250706 14:13:03.528" level="INFO">Waiting for process to complete.</msg>
-<msg timestamp="20250706 14:13:30.972" level="INFO">Process completed.</msg>
-<status status="PASS" starttime="20250706 14:13:03.525" endtime="20250706 14:13:30.973"/>
+<status status="PASS" start="2025-07-07T09:41:10.883107" elapsed="37.181611"/>
 </kw>
-<kw name="Sleep" library="BuiltIn">
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2025-07-07T09:42:03.068590" level="INFO">Slept 15 seconds.</msg>
 <arg>15s</arg>
 <doc>Pauses the test executed for the given time.</doc>
-<msg timestamp="20250706 14:13:45.979" level="INFO">Slept 15 seconds</msg>
-<status status="PASS" starttime="20250706 14:13:30.975" endtime="20250706 14:13:45.981"/>
+<status status="PASS" start="2025-07-07T09:41:48.066014" elapsed="15.003880"/>
 </kw>
-<kw name="Wait For Application To Start" library="common">
-<doc>Waits for the application to be ready</doc>
-<kw name="Wait Until Keyword Succeeds" library="BuiltIn">
-<arg>60s</arg>
-<arg>5s</arg>
-<arg>Check Application Health</arg>
-<doc>Runs the specified keyword and retries if it fails.</doc>
-<kw name="Check Application Health" library="common">
-<doc>Checks if application is responding</doc>
-<kw name="Create Session" library="RequestsLibrary">
+<kw name="Wait For Application To Start" owner="common">
+<kw name="Wait Until Keyword Succeeds" owner="BuiltIn">
+<kw name="Check Application Health" owner="common">
+<kw name="Create Session" owner="RequestsLibrary">
+<msg time="2025-07-07T09:42:03.073403" level="INFO">Creating Session using : alias=healthcheck, url=http://localhost:4321, headers={},                     cookies={}, auth=None, timeout=None, proxies=None, verify=False,                     debug=0 </msg>
 <arg>healthcheck</arg>
 <arg>${BASE_URL}</arg>
 <doc>Create Session: create a HTTP session to a server</doc>
-<msg timestamp="20250706 14:13:45.984" level="INFO">Creating Session using : alias=healthcheck, url=http://localhost:4321, headers={},                     cookies={}, auth=None, timeout=None, proxies=None, verify=False,                     debug=0 </msg>
-<status status="PASS" starttime="20250706 14:13:45.984" endtime="20250706 14:13:45.984"/>
+<status status="PASS" start="2025-07-07T09:42:03.072910" elapsed="0.001221"/>
 </kw>
-<kw name="GET On Session" library="RequestsLibrary">
-<var>${response}</var>
-<arg>healthcheck</arg>
-<arg>/</arg>
-<doc>Sends a GET request on a previously created HTTP Session.</doc>
-<msg timestamp="20250706 14:13:46.007" level="INFO">GET Request : url=http://localhost:4321/ 
+<kw name="GET On Session" owner="RequestsLibrary">
+<msg time="2025-07-07T09:42:03.109052" level="INFO">GET Request : url=http://localhost:4321/ 
  path_url=/ 
- headers={'User-Agent': 'python-requests/2.31.0', 'Accept-Encoding': 'gzip, deflate, zstd', 'Accept': '*/*', 'Connection': 'keep-alive'} 
+ headers={'User-Agent': 'python-requests/2.32.4', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'} 
  body=None 
  </msg>
-<msg timestamp="20250706 14:13:46.007" level="INFO">GET Response : url=http://localhost:4321/ 
+<msg time="2025-07-07T09:42:03.109285" level="INFO">GET Response : url=http://localhost:4321/ 
  status=200, reason=OK 
- headers={'Vary': 'Origin', 'content-type': 'text/html', 'Date': 'Sun, 06 Jul 2025 11:13:46 GMT', 'Connection': 'keep-alive', 'Keep-Alive': 'timeout=5', 'Transfer-Encoding': 'chunked'} 
+ headers={'Vary': 'Origin', 'content-type': 'text/html', 'Date': 'Mon, 07 Jul 2025 06:42:03 GMT', 'Connection': 'keep-alive', 'Keep-Alive': 'timeout=5', 'Transfer-Encoding': 'chunked'} 
  body=&lt;!DOCTYPE html&gt;&lt;!-- &lt;BaseLayout title="Home" description="Home page"&gt; --&gt;&lt;style data-vite-dev-id="/app/node_modules/@astrojs/tailwind/base.css"&gt;*, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
@@ -544,212 +532,195 @@ Make sure disabled buttons don't get the pointer cursor.
 2. Add `vertical-align: middle` to align replaced elements more sensibly by default. (https://github.com/jensimmons/cssremedy/issues/14#issuecomment-634934210)
    This can trigger... (set the log level to DEBUG or TRACE to see the full content) 
  </msg>
-<msg timestamp="20250706 14:13:46.008" level="INFO">${response} = &lt;Response [200]&gt;</msg>
-<status status="PASS" starttime="20250706 14:13:45.984" endtime="20250706 14:13:46.008"/>
+<msg time="2025-07-07T09:42:03.110053" level="INFO">${response} = &lt;Response [200]&gt;</msg>
+<var>${response}</var>
+<arg>healthcheck</arg>
+<arg>/</arg>
+<doc>Sends a GET request on a previously created HTTP Session.</doc>
+<status status="PASS" start="2025-07-07T09:42:03.074255" elapsed="0.035822"/>
 </kw>
-<kw name="Should Be Equal As Integers" library="BuiltIn">
+<kw name="Should Be Equal As Integers" owner="BuiltIn">
+<msg time="2025-07-07T09:42:03.110665" level="INFO">Argument types are:
+&lt;class 'int'&gt;
+&lt;class 'str'&gt;</msg>
 <arg>${response.status_code}</arg>
 <arg>200</arg>
 <doc>Fails if objects are unequal after converting them to integers.</doc>
-<msg timestamp="20250706 14:13:46.008" level="INFO">Argument types are:
-&lt;class 'int'&gt;
-&lt;class 'str'&gt;</msg>
-<status status="PASS" starttime="20250706 14:13:46.008" endtime="20250706 14:13:46.008"/>
+<status status="PASS" start="2025-07-07T09:42:03.110201" elapsed="0.000515"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:45.984" endtime="20250706 14:13:46.008"/>
+<doc>Checks if application is responding</doc>
+<status status="PASS" start="2025-07-07T09:42:03.072640" elapsed="0.038122"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:45.983" endtime="20250706 14:13:46.008"/>
+<arg>60s</arg>
+<arg>5s</arg>
+<arg>Check Application Health</arg>
+<doc>Runs the specified keyword and retries if it fails.</doc>
+<status status="PASS" start="2025-07-07T09:42:03.072290" elapsed="0.038502"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:45.982" endtime="20250706 14:13:46.008"/>
+<doc>Waits for the application to be ready</doc>
+<status status="PASS" start="2025-07-07T09:42:03.071539" elapsed="0.039282"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:01.191" endtime="20250706 14:13:46.009"/>
+<tag>setup</tag>
+<doc>Clears application data by restarting containers</doc>
+<status status="PASS" start="2025-07-07T09:41:08.875568" elapsed="54.235276"/>
 </kw>
-<test id="s1-t1" name="User Can Register Successfully" line="11">
-<kw name="Open Browser To Application And Navigate To Home" library="common" type="SETUP">
-<doc>Opens browser, navigates to application and waits for it to load</doc>
-<kw name="Open Browser To Application" library="common">
-<doc>Opens browser and navigates to the application</doc>
-<kw name="Evaluate" library="BuiltIn">
+<test id="s1-t1" name="Registration Fails With Empty Username" line="36">
+<kw name="Open Browser To Application And Navigate To Home" owner="common" type="SETUP">
+<kw name="Open Browser To Application" owner="common">
+<kw name="Evaluate" owner="BuiltIn">
+<msg time="2025-07-07T09:42:03.111823" level="INFO">${chrome_options} = &lt;selenium.webdriver.chrome.options.Options object at 0x1065ebe00&gt;</msg>
 <var>${chrome_options}</var>
 <arg>sys.modules['selenium.webdriver'].ChromeOptions()</arg>
 <arg>sys, selenium.webdriver</arg>
 <doc>Evaluates the given expression in Python and returns the result.</doc>
-<msg timestamp="20250706 14:13:46.010" level="INFO">${chrome_options} = &lt;selenium.webdriver.chrome.options.Options object at 0x10373c290&gt;</msg>
-<status status="PASS" starttime="20250706 14:13:46.009" endtime="20250706 14:13:46.010"/>
+<status status="PASS" start="2025-07-07T09:42:03.111597" elapsed="0.000244"/>
 </kw>
-<kw name="Run Keyword If" library="BuiltIn">
+<kw name="Run Keyword If" owner="BuiltIn">
+<kw name="Call Method" owner="BuiltIn">
+<arg>${chrome_options}</arg>
+<arg>add_argument</arg>
+<arg>--headless</arg>
+<doc>Calls the named method of the given object with the provided arguments.</doc>
+<status status="PASS" start="2025-07-07T09:42:03.112060" elapsed="0.000069"/>
+</kw>
 <arg>${HEADLESS}</arg>
 <arg>Call Method</arg>
 <arg>${chrome_options}</arg>
 <arg>add_argument</arg>
 <arg>--headless</arg>
 <doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
-<kw name="Call Method" library="BuiltIn">
-<arg>${chrome_options}</arg>
-<arg>add_argument</arg>
-<arg>--headless</arg>
-<doc>Calls the named method of the given object with the provided arguments.</doc>
-<status status="PASS" starttime="20250706 14:13:46.010" endtime="20250706 14:13:46.010"/>
+<status status="PASS" start="2025-07-07T09:42:03.111933" elapsed="0.000228"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:46.010" endtime="20250706 14:13:46.010"/>
-</kw>
-<kw name="Call Method" library="BuiltIn">
+<kw name="Call Method" owner="BuiltIn">
 <arg>${chrome_options}</arg>
 <arg>add_argument</arg>
 <arg>--no-sandbox</arg>
 <doc>Calls the named method of the given object with the provided arguments.</doc>
-<status status="PASS" starttime="20250706 14:13:46.010" endtime="20250706 14:13:46.010"/>
+<status status="PASS" start="2025-07-07T09:42:03.112211" elapsed="0.000058"/>
 </kw>
-<kw name="Call Method" library="BuiltIn">
+<kw name="Call Method" owner="BuiltIn">
 <arg>${chrome_options}</arg>
 <arg>add_argument</arg>
 <arg>--disable-dev-shm-usage</arg>
 <doc>Calls the named method of the given object with the provided arguments.</doc>
-<status status="PASS" starttime="20250706 14:13:46.010" endtime="20250706 14:13:46.010"/>
+<status status="PASS" start="2025-07-07T09:42:03.112317" elapsed="0.000052"/>
 </kw>
-<kw name="Call Method" library="BuiltIn">
+<kw name="Call Method" owner="BuiltIn">
 <arg>${chrome_options}</arg>
 <arg>add_argument</arg>
 <arg>--disable-gpu</arg>
 <doc>Calls the named method of the given object with the provided arguments.</doc>
-<status status="PASS" starttime="20250706 14:13:46.010" endtime="20250706 14:13:46.010"/>
+<status status="PASS" start="2025-07-07T09:42:03.112415" elapsed="0.000063"/>
 </kw>
-<kw name="Open Browser" library="SeleniumLibrary">
+<kw name="Open Browser" owner="SeleniumLibrary">
+<msg time="2025-07-07T09:42:03.112808" level="INFO">Opening browser 'Chrome' to base url 'http://localhost:4321'.</msg>
 <arg>${BASE_URL}</arg>
 <arg>${BROWSER}</arg>
 <arg>options=${chrome_options}</arg>
 <doc>Opens a new browser instance to the optional ``url``.</doc>
-<msg timestamp="20250706 14:13:46.011" level="INFO">Opening browser 'Chrome' to base url 'http://localhost:4321'.</msg>
-<status status="PASS" starttime="20250706 14:13:46.010" endtime="20250706 14:13:48.051"/>
+<status status="PASS" start="2025-07-07T09:42:03.112572" elapsed="1.796512"/>
 </kw>
-<kw name="Set Selenium Implicit Wait" library="SeleniumLibrary">
+<kw name="Set Selenium Implicit Wait" owner="SeleniumLibrary">
 <arg>${IMPLICIT_WAIT}</arg>
 <doc>Sets the implicit wait value used by Selenium.</doc>
-<status status="PASS" starttime="20250706 14:13:48.051" endtime="20250706 14:13:48.052"/>
+<status status="PASS" start="2025-07-07T09:42:04.911057" elapsed="0.001172"/>
 </kw>
-<kw name="Maximize Browser Window" library="SeleniumLibrary">
+<kw name="Maximize Browser Window" owner="SeleniumLibrary">
 <doc>Maximizes current browser window.</doc>
-<status status="PASS" starttime="20250706 14:13:48.052" endtime="20250706 14:13:48.069"/>
+<status status="PASS" start="2025-07-07T09:42:04.912344" elapsed="0.018675"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:46.009" endtime="20250706 14:13:48.069"/>
+<doc>Opens browser and navigates to the application</doc>
+<status status="PASS" start="2025-07-07T09:42:03.111489" elapsed="1.819647"/>
 </kw>
-<kw name="Execute Javascript" library="SeleniumLibrary">
-<arg>localStorage.clear()</arg>
-<doc>Executes the given JavaScript code with possible arguments.</doc>
-<msg timestamp="20250706 14:13:48.070" level="INFO">Executing JavaScript:
+<kw name="Execute Javascript" owner="SeleniumLibrary">
+<msg time="2025-07-07T09:42:04.931603" level="INFO">Executing JavaScript:
 localStorage.clear()
 Without any arguments.</msg>
-<status status="PASS" starttime="20250706 14:13:48.069" endtime="20250706 14:13:48.074"/>
+<arg>localStorage.clear()</arg>
+<doc>Executes the given JavaScript code with possible arguments.</doc>
+<status status="PASS" start="2025-07-07T09:42:04.931253" elapsed="0.004806"/>
 </kw>
-<kw name="Wait For Page To Load" library="common">
-<doc>Waits for page to fully load</doc>
-<kw name="Wait Until Page Contains Element" library="SeleniumLibrary">
+<kw name="Wait For Page To Load" owner="common">
+<kw name="Wait Until Page Contains Element" owner="SeleniumLibrary">
 <arg>tag:body</arg>
 <arg>${EXPLICIT_WAIT}</arg>
 <doc>Waits until the element ``locator`` appears on the current page.</doc>
-<status status="PASS" starttime="20250706 14:13:48.074" endtime="20250706 14:13:48.082"/>
+<status status="PASS" start="2025-07-07T09:42:04.937298" elapsed="0.008953"/>
 </kw>
-<kw name="Sleep" library="BuiltIn">
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2025-07-07T09:42:05.948546" level="INFO">Slept 1 second.</msg>
 <arg>1s</arg>
 <doc>Pauses the test executed for the given time.</doc>
-<msg timestamp="20250706 14:13:49.084" level="INFO">Slept 1 second</msg>
-<status status="PASS" starttime="20250706 14:13:48.082" endtime="20250706 14:13:49.084"/>
+<status status="PASS" start="2025-07-07T09:42:04.946388" elapsed="1.002480"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:48.074" endtime="20250706 14:13:49.084"/>
+<doc>Waits for page to fully load</doc>
+<status status="PASS" start="2025-07-07T09:42:04.936261" elapsed="1.012870"/>
 </kw>
-<kw name="Log" library="BuiltIn">
+<kw name="Log" owner="BuiltIn">
+<msg time="2025-07-07T09:42:05.951628" level="INFO">Current URL: </msg>
 <arg>Current URL: ${EMPTY}</arg>
 <doc>Logs the given message with the given level.</doc>
-<msg timestamp="20250706 14:13:49.085" level="INFO">Current URL: </msg>
-<status status="PASS" starttime="20250706 14:13:49.084" endtime="20250706 14:13:49.085"/>
+<status status="PASS" start="2025-07-07T09:42:05.949630" elapsed="0.002086"/>
 </kw>
-<kw name="Get Location" library="SeleniumLibrary">
+<kw name="Get Location" owner="SeleniumLibrary">
+<msg time="2025-07-07T09:42:05.955918" level="INFO">${current_url} = http://localhost:4321/login</msg>
 <var>${current_url}</var>
 <doc>Returns the current browser window URL.</doc>
-<msg timestamp="20250706 14:13:49.090" level="INFO">${current_url} = http://localhost:4321/login</msg>
-<status status="PASS" starttime="20250706 14:13:49.086" endtime="20250706 14:13:49.090"/>
+<status status="PASS" start="2025-07-07T09:42:05.951932" elapsed="0.004022"/>
 </kw>
-<kw name="Log" library="BuiltIn">
+<kw name="Log" owner="BuiltIn">
+<msg time="2025-07-07T09:42:05.956168" level="INFO">Current URL: http://localhost:4321/login</msg>
 <arg>Current URL: ${current_url}</arg>
 <doc>Logs the given message with the given level.</doc>
-<msg timestamp="20250706 14:13:49.090" level="INFO">Current URL: http://localhost:4321/login</msg>
-<status status="PASS" starttime="20250706 14:13:49.090" endtime="20250706 14:13:49.090"/>
+<status status="PASS" start="2025-07-07T09:42:05.956065" elapsed="0.000125"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:46.009" endtime="20250706 14:13:49.090"/>
+<doc>Opens browser, navigates to application and waits for it to load</doc>
+<status status="PASS" start="2025-07-07T09:42:03.111353" elapsed="2.844880"/>
 </kw>
-<kw name="Generate Unique Username" library="common">
-<var>${unique_username}</var>
-<doc>Generates a unique username for testing</doc>
-<kw name="Get Time" library="BuiltIn">
-<var>${timestamp}</var>
-<arg>epoch</arg>
-<doc>Returns the given time in the requested format.</doc>
-<msg timestamp="20250706 14:13:49.091" level="INFO">${timestamp} = 1751800429</msg>
-<status status="PASS" starttime="20250706 14:13:49.091" endtime="20250706 14:13:49.091"/>
-</kw>
-<kw name="Set Variable" library="BuiltIn">
-<var>${unique_username}</var>
-<arg>testuser${timestamp}</arg>
-<doc>Returns the given values which can then be assigned to a variables.</doc>
-<msg timestamp="20250706 14:13:49.091" level="INFO">${unique_username} = testuser1751800429</msg>
-<status status="PASS" starttime="20250706 14:13:49.091" endtime="20250706 14:13:49.091"/>
-</kw>
-<return>
-<value>${unique_username}</value>
-<status status="PASS" starttime="20250706 14:13:49.091" endtime="20250706 14:13:49.091"/>
-</return>
-<msg timestamp="20250706 14:13:49.091" level="INFO">${unique_username} = testuser1751800429</msg>
-<status status="PASS" starttime="20250706 14:13:49.090" endtime="20250706 14:13:49.091"/>
-</kw>
-<kw name="Register New User" library="auth_keywords">
-<arg>${unique_username}</arg>
-<arg>${TEST_PASSWORD_1}</arg>
-<doc>Registers a new user account</doc>
-<kw name="Navigate To Register Page" library="auth_keywords">
-<doc>Navigates to the registration page</doc>
-<kw name="Log" library="BuiltIn">
+<kw name="Register With Invalid Data Should Fail" owner="auth_keywords">
+<kw name="Navigate To Register Page" owner="auth_keywords">
+<kw name="Log" owner="BuiltIn">
+<msg time="2025-07-07T09:42:05.956714" level="INFO">Navigating to registration URL: http://localhost:4321/register</msg>
 <arg>Navigating to registration URL: ${REGISTER_URL}</arg>
 <doc>Logs the given message with the given level.</doc>
-<msg timestamp="20250706 14:13:49.091" level="INFO">Navigating to registration URL: http://localhost:4321/register</msg>
-<status status="PASS" starttime="20250706 14:13:49.091" endtime="20250706 14:13:49.092"/>
+<status status="PASS" start="2025-07-07T09:42:05.956661" elapsed="0.000072"/>
 </kw>
-<kw name="Go To" library="SeleniumLibrary">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2025-07-07T09:42:05.956844" level="INFO">Opening url 'http://localhost:4321/register'</msg>
 <arg>${REGISTER_URL}</arg>
 <doc>Navigates the current browser window to the provided ``url``.</doc>
-<msg timestamp="20250706 14:13:49.092" level="INFO">Opening url 'http://localhost:4321/register'</msg>
-<status status="PASS" starttime="20250706 14:13:49.092" endtime="20250706 14:13:49.201"/>
+<status status="PASS" start="2025-07-07T09:42:05.956786" elapsed="0.092940"/>
 </kw>
-<kw name="Wait For Page To Load" library="common">
-<doc>Waits for page to fully load</doc>
-<kw name="Wait Until Page Contains Element" library="SeleniumLibrary">
+<kw name="Wait For Page To Load" owner="common">
+<kw name="Wait Until Page Contains Element" owner="SeleniumLibrary">
 <arg>tag:body</arg>
 <arg>${EXPLICIT_WAIT}</arg>
 <doc>Waits until the element ``locator`` appears on the current page.</doc>
-<status status="PASS" starttime="20250706 14:13:49.201" endtime="20250706 14:13:49.223"/>
+<status status="PASS" start="2025-07-07T09:42:06.050057" elapsed="0.019840"/>
 </kw>
-<kw name="Sleep" library="BuiltIn">
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2025-07-07T09:42:07.072068" level="INFO">Slept 1 second.</msg>
 <arg>1s</arg>
 <doc>Pauses the test executed for the given time.</doc>
-<msg timestamp="20250706 14:13:50.224" level="INFO">Slept 1 second</msg>
-<status status="PASS" starttime="20250706 14:13:49.223" endtime="20250706 14:13:50.224"/>
+<status status="PASS" start="2025-07-07T09:42:06.070027" elapsed="1.002246"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:49.201" endtime="20250706 14:13:50.224"/>
+<doc>Waits for page to fully load</doc>
+<status status="PASS" start="2025-07-07T09:42:06.049881" elapsed="1.022531"/>
 </kw>
-<kw name="Get Location" library="SeleniumLibrary">
+<kw name="Get Location" owner="SeleniumLibrary">
+<msg time="2025-07-07T09:42:07.077120" level="INFO">${current_url} = http://localhost:4321/register</msg>
 <var>${current_url}</var>
 <doc>Returns the current browser window URL.</doc>
-<msg timestamp="20250706 14:13:50.230" level="INFO">${current_url} = http://localhost:4321/register</msg>
-<status status="PASS" starttime="20250706 14:13:50.224" endtime="20250706 14:13:50.230"/>
+<status status="PASS" start="2025-07-07T09:42:07.072613" elapsed="0.004730"/>
 </kw>
-<kw name="Log" library="BuiltIn">
+<kw name="Log" owner="BuiltIn">
+<msg time="2025-07-07T09:42:07.077694" level="INFO">Current URL after navigation: http://localhost:4321/register</msg>
 <arg>Current URL after navigation: ${current_url}</arg>
 <doc>Logs the given message with the given level.</doc>
-<msg timestamp="20250706 14:13:50.230" level="INFO">Current URL after navigation: http://localhost:4321/register</msg>
-<status status="PASS" starttime="20250706 14:13:50.230" endtime="20250706 14:13:50.230"/>
+<status status="PASS" start="2025-07-07T09:42:07.077530" elapsed="0.000200"/>
 </kw>
-<kw name="Log Source" library="SeleniumLibrary">
-<doc>Logs and returns the HTML source of the current page or frame.</doc>
-<msg timestamp="20250706 14:13:50.239" level="INFO">&lt;html lang="en" data-astro-cid-4jmloj5z=""&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;meta name="viewport" content="width=device-width"&gt;&lt;link rel="icon" type="image/svg+xml" href="/favicon.svg"&gt;&lt;meta name="astro-view-transitions-enabled" content="true"&gt;&lt;meta name="astro-view-transitions-fallback" content="animate"&gt;&lt;style data-vite-dev-id="/app/node_modules/@astrojs/tailwind/base.css"&gt;*, ::before, ::after {
+<kw name="Log Source" owner="SeleniumLibrary">
+<msg time="2025-07-07T09:42:07.084091" level="INFO">&lt;html lang="en" data-astro-cid-4jmloj5z=""&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;meta name="viewport" content="width=device-width"&gt;&lt;link rel="icon" type="image/svg+xml" href="/favicon.svg"&gt;&lt;meta name="astro-view-transitions-enabled" content="true"&gt;&lt;meta name="astro-view-transitions-fallback" content="animate"&gt;&lt;style data-vite-dev-id="/app/node_modules/@astrojs/tailwind/base.css"&gt;*, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;
   --tw-translate-x: 0;
@@ -2919,6 +2890,9 @@ html {
 .pointer-events-none {
   pointer-events: none;
 }
+.fixed {
+  position: fixed;
+}
 .absolute {
   position: absolute;
 }
@@ -2928,11 +2902,17 @@ html {
 .sticky {
   position: sticky;
 }
+.inset-0 {
+  inset: 0px;
+}
 .right-6 {
   right: 1.5rem;
 }
 .z-10 {
   z-index: 10;
+}
+.z-50 {
+  z-index: 50;
 }
 .mx-1\.5 {
   margin-left: 0.375rem;
@@ -2971,6 +2951,9 @@ html {
 }
 .mr-2 {
   margin-right: 0.5rem;
+}
+.mr-3 {
+  margin-right: 0.75rem;
 }
 .mt-1 {
   margin-top: 0.25rem;
@@ -3175,6 +3158,10 @@ html {
 .border-t-current {
   border-top-color: currentColor;
 }
+.bg-black {
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 0 0 / var(--tw-bg-opacity, 1));
+}
 .bg-current {
   background-color: currentColor;
 }
@@ -3205,6 +3192,9 @@ html {
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+}
+.bg-opacity-50 {
+  --tw-bg-opacity: 0.5;
 }
 .p-2 {
   padding: 0.5rem;
@@ -3340,6 +3330,10 @@ html {
 .text-green-500 {
   --tw-text-opacity: 1;
   color: rgb(34 197 94 / var(--tw-text-opacity, 1));
+}
+.text-green-600 {
+  --tw-text-opacity: 1;
+  color: rgb(22 163 74 / var(--tw-text-opacity, 1));
 }
 .text-orange-700 {
   --tw-text-opacity: 1;
@@ -3668,7 +3662,7 @@ html {
 	}&lt;/style&gt;
 &lt;style data-vite-dev-id="/app/src/layout/BaseLayout.astro?astro&amp;amp;type=style&amp;amp;index=0&amp;amp;lang.css"&gt;html,body{font-family:system-ui;margin:0}&lt;/style&gt;&lt;script type="module" src="/node_modules/astro/components/ViewTransitions.astro?astro&amp;amp;type=script&amp;amp;index=0&amp;amp;lang.ts" data-astro-exec=""&gt;&lt;/script&gt;
 &lt;script type="module" src="/@vite/client" data-astro-exec=""&gt;&lt;/script&gt;
-&lt;script type="module" src="/@fs/app/node_modules/astro/dist/runtime/client/dev-toolbar/entrypoint.js?v=c52b3ef3" data-astro-exec=""&gt;&lt;/script&gt;
+&lt;script type="module" src="/@fs/app/node_modules/astro/dist/runtime/client/dev-toolbar/entrypoint.js?v=31316c7c" data-astro-exec=""&gt;&lt;/script&gt;
 &lt;script data-astro-exec=""&gt;window.__astro_dev_toolbar__ = {"root":"/app/","version":"4.16.18","debugInfo":"Astro                    v4.16.18\nNode                     v22.12.0\nSystem                   Linux (arm64)\nPackage Manager          npm\nOutput                   static\nAdapter                  none\nIntegrations             @astrojs/solid-js\n                         @astrojs/tailwind\n                         astro-icon"}&lt;/script&gt;
 &lt;script type="module" src="/node_modules/@astrojs/tailwind/base.css" data-astro-exec=""&gt;&lt;/script&gt;
 &lt;script type="module" src="/src/layout/NavBar.astro?astro&amp;amp;type=style&amp;amp;index=0&amp;amp;lang.css" data-astro-exec=""&gt;&lt;/script&gt;
@@ -3817,182 +3811,158 @@ html {
 }
 &lt;/style&gt;&lt;/head&gt; &lt;body class="relative flex h-screen flex-col" data-astro-cid-4jmloj5z="" data-astro-source-file="/app/src/layout/BaseLayout.astro" data-astro-source-loc="24:49"&gt; &lt;nav class="sticky border-b border-zinc-300 bg-slate-50/60 px-8 py-5 font-light text-zinc-600" data-astro-cid-lkziebym="" data-astro-source-file="/app/src/layout/NavBar.astro" data-astro-source-loc="9:2"&gt; &lt;div class="flex flex-col items-center justify-between gap-2 md:flex-row" data-astro-cid-lkziebym="" data-astro-source-file="/app/src/layout/NavBar.astro" data-astro-source-loc="10:77"&gt; &lt;div class="flex flex-col md:flex-row items-center" data-astro-cid-lkziebym="" data-astro-source-file="/app/src/layout/NavBar.astro" data-astro-source-loc="11:57"&gt; &lt;div class="flex px-4 py-2 text-2xl" data-astro-cid-lkziebym="" data-astro-source-file="/app/src/layout/NavBar.astro" data-astro-source-loc="12:44"&gt; &lt;div class="iconify text-2xl self-center" data-icon="flat-color-icons:todo-list"&gt;&lt;svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 48 48"&gt;&lt;path fill="#3f51b5" d="m17.8 18.1l-7.4 7.3l-4.2-4.1L4 23.5l6.4 6.4l9.6-9.6zm0-13l-7.4 7.3l-4.2-4.1L4 10.5l6.4 6.4L20 7.3zm0 26l-7.4 7.3l-4.2-4.1L4 36.5l6.4 6.4l9.6-9.6z"&gt;&lt;/path&gt;&lt;path fill="#90caf9" d="M24 22h20v4H24zm0-13h20v4H24zm0 26h20v4H24z"&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/div&gt; &lt;span class="ml-2 align-text-top text-2xl font-semibold" data-astro-cid-lkziebym="" data-astro-source-file="/app/src/layout/NavBar.astro" data-astro-source-loc="14:66"&gt;
 Todo Manager
-&lt;/span&gt; &lt;/div&gt; &lt;div class="divider divider-horizontal before:bg-gray-500 after:bg-gray-500" data-astro-cid-lkziebym="" data-astro-source-file="/app/src/layout/NavBar.astro" data-astro-source-loc="18:8"&gt;&lt;/div&gt; &lt;style&gt;astro-island,astro-slot,astro-static-slot{display:contents}&lt;/style&gt;&lt;script data-astro-exec=""&gt;(()=&gt;{var e=async t=&gt;{await(await t())()};(self.Astro||(self.Astro={})).only=e;window.dispatchEvent(new Event("astro:only"));})();;(()=&gt;{var A=Object.defineProperty;var g=(i,o,a)=&gt;o in i?A(i,o,{enumerable:!0,configurable:!0,writable:!0,value:a}):i[o]=a;var l=(i,o,a)=&gt;g(i,typeof o!="symbol"?o+"":o,a);{let i={0:t=&gt;y(t),1:t=&gt;a(t),2:t=&gt;new RegExp(t),3:t=&gt;new Date(t),4:t=&gt;new Map(a(t)),5:t=&gt;new Set(a(t)),6:t=&gt;BigInt(t),7:t=&gt;new URL(t),8:t=&gt;new Uint8Array(t),9:t=&gt;new Uint16Array(t),10:t=&gt;new Uint32Array(t),11:t=&gt;1/0*t},o=t=&gt;{let[h,e]=t;return h in i?i[h](e):void 0},a=t=&gt;t.map(o),y=t=&gt;typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([h,e])=&gt;[h,o(e)]));class f extends HTMLElement{constructor(){super(...arguments);l(this,"Component");l(this,"hydrator");l(this,"hydrate",async()=&gt;{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let c=this.querySelectorAll("astro-slot"),n={},p=this.querySelectorAll("template[data-astro-template]");for(let r of p){let s=r.closest(this.tagName);s!=null&amp;&amp;s.isSameNode(this)&amp;&amp;(n[r.getAttribute("data-astro-template")||"default"]=r.innerHTML,r.remove())}for(let r of c){let s=r.closest(this.tagName);s!=null&amp;&amp;s.isSameNode(this)&amp;&amp;(n[r.getAttribute("name")||"default"]=r.innerHTML)}let u;try{u=this.hasAttribute("props")?y(JSON.parse(this.getAttribute("props"))):{}}catch(r){let s=this.getAttribute("component-url")||"&lt;unknown&gt;",v=this.getAttribute("component-export");throw v&amp;&amp;(s+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${s}`,this.getAttribute("props"),r),r}let d,m=this.hydrator(this);d=performance.now(),await m(this.Component,u,n,{client:this.getAttribute("client")}),d&amp;&amp;this.setAttribute("client-render-time",(performance.now()-d).toString()),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});l(this,"unmount",()=&gt;{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=&gt;{document.removeEventListener("DOMContentLoaded",e),c.disconnect(),this.childrenConnectedCallback()},c=new MutationObserver(()=&gt;{var n;((n=this.lastChild)==null?void 0:n.nodeType)===Node.COMMENT_NODE&amp;&amp;this.lastChild.nodeValue==="astro:end"&amp;&amp;(this.lastChild.remove(),e())});c.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&amp;&amp;await import(e),this.start()}async start(){let e=JSON.parse(this.getAttribute("opts")),c=this.getAttribute("client");if(Astro[c]===void 0){window.addEventListener(`astro:${c}`,()=&gt;this.start(),{once:!0});return}try{await Astro[c](async()=&gt;{let n=this.getAttribute("renderer-url"),[p,{default:u}]=await Promise.all([import(this.getAttribute("component-url")),n?import(n):()=&gt;()=&gt;{}]),d=this.getAttribute("component-export")||"default";if(!d.includes("."))this.Component=p[d];else{this.Component=p;for(let m of d.split("."))this.Component=this.Component[m]}return this.hydrator=u,this.hydrate},e,this)}catch(n){console.error(`[astro-island] Error hydrating ${this.getAttribute("component-url")}`,n)}}attributeChangedCallback(){this.hydrate()}}l(f,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",f)}})();&lt;/script&gt;&lt;astro-island uid="2rwUXr" component-url="/src/components/navbar/TodoListItems.tsx" component-export="default" renderer-url="/node_modules/.vite/deps/@astrojs_solid-js_client__js.js?v=4fa70ae9" props="{&amp;quot;data-astro-cid-lkziebym&amp;quot;:[0,true]}" client="only" before-hydration-url="/@id/astro:scripts/before-hydration.js" opts="{&amp;quot;name&amp;quot;:&amp;quot;TodoListItems&amp;quot;,&amp;quot;value&amp;quot;:&amp;quot;solid-js&amp;quot;}" client-render-time="0.4000000059604645"&gt;&lt;div&gt;&lt;!--$--&gt;&lt;span class="px-4 font-semibold"&gt;&lt;iconify-icon icon="fluent:person-accounts-20-filled" class="mr-1 align-bottom text-2xl"&gt;&lt;/iconify-icon&gt;Login or sign up to get started&lt;/span&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;!--/--&gt;&lt;/div&gt;&lt;/astro-island&gt; &lt;/div&gt; &lt;astro-island uid="ZcmYfH" component-url="/src/components/navbar/ProfileItems.tsx" component-export="default" renderer-url="/node_modules/.vite/deps/@astrojs_solid-js_client__js.js?v=4fa70ae9" props="{&amp;quot;data-astro-cid-lkziebym&amp;quot;:[0,true]}" client="only" before-hydration-url="/@id/astro:scripts/before-hydration.js" opts="{&amp;quot;name&amp;quot;:&amp;quot;ProfileItems&amp;quot;,&amp;quot;value&amp;quot;:&amp;quot;solid-js&amp;quot;}" client-render-time="0.5"&gt;&lt;/astro-island&gt; &lt;/div&gt; &lt;/nav&gt;  &lt;main class="flex grow justify-center p-8" data-astro-cid-4jmloj5z="" data-astro-source-file="/app/src/layout/BaseLayout.astro" data-astro-source-loc="26:48"&gt;  &lt;script data-astro-exec=""&gt;(()=&gt;{var l=(s,i,o)=&gt;{let r=async()=&gt;{await(await s())()},t=typeof i.value=="object"?i.value:void 0,c={rootMargin:t==null?void 0:t.rootMargin},n=new IntersectionObserver(e=&gt;{for(let a of e)if(a.isIntersecting){n.disconnect(),r();break}},c);for(let e of o.children)n.observe(e)};(self.Astro||(self.Astro={})).visible=l;window.dispatchEvent(new Event("astro:visible"));})();&lt;/script&gt;&lt;script data-astro-exec=""&gt;window._$HY||(e=&gt;{let t=e=&gt;e&amp;&amp;e.hasAttribute&amp;&amp;(e.hasAttribute("data-hk")?e:t(e.host&amp;&amp;e.host.nodeType?e.host:e.parentNode));["click", "input"].forEach((o=&gt;document.addEventListener(o,(o=&gt;{if(!e.events)return;let s=t(o.composedPath&amp;&amp;o.composedPath()[0]||o.target);s&amp;&amp;!e.completed.has(s)&amp;&amp;e.events.push([s,o])}))))})(_$HY={events:[],completed:new WeakSet,r:{},fe(){}});&lt;/script&gt;&lt;!--xs--&gt;&lt;astro-island uid="Zu0hOw" data-solid-render-id="s0" component-url="/src/components/forms/RegisterForm.tsx" component-export="default" renderer-url="/node_modules/.vite/deps/@astrojs_solid-js_client__js.js?v=4fa70ae9" props="{}" client="visible" before-hydration-url="/@id/astro:scripts/before-hydration.js" opts="{&amp;quot;name&amp;quot;:&amp;quot;RegisterForm&amp;quot;,&amp;quot;value&amp;quot;:true}" server-render-time="2.8340419999985897" await-children="" client-render-time="1"&gt;&lt;div data-hk="s00000" class="flex max-w-xl flex-col justify-center"&gt;&lt;div class="container prose mb-8"&gt;&lt;h1&gt;Register an account&lt;/h1&gt;&lt;p&gt;An account is needed to use the Todo Manager.&lt;/p&gt;&lt;p&gt;In case you already have an account, please login through &lt;a href="/login"&gt;here&lt;/a&gt; or through the button below on the left.&lt;/p&gt;&lt;/div&gt;&lt;!--$--&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;form data-hk="s000020" novalidate="" data-testid="register-form"&gt;&lt;div data-hk="s00002100"&gt;&lt;!--$--&gt;&lt;label data-hk="s0000210100" class="prose inline-block font-medium md:text-lg lg:text-xl mb-4 lg:mb-5" for="username"&gt;&lt;!--$--&gt;Username&lt;!--/--&gt; &lt;!--$--&gt;&lt;span data-hk="s0000210101" class="ml-1 text-red-600 dark:text-red-400"&gt;*&lt;/span&gt;&lt;!--/--&gt;&lt;/label&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;input data-hk="s00002102" type="text" name="username" required="" class="h-14 w-full rounded-2xl border-2 bg-white px-5 outline-none placeholder:text-slate-500 md:h-16 md:text-lg lg:h-[70px] lg:px-6 lg:text-xl dark:bg-gray-900 border-slate-200 hover:border-slate-300 focus:border-sky-600/50 dark:border-slate-800 dark:hover:border-slate-700 dark:focus:border-sky-400/50 " id="username" value="" aria-invalid="false" aria-errormessage="username-error"&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;div data-hk="s000021030" class="pt-4 text-sm text-red-500 md:text-base lg:pt-5 lg:text-lg dark:text-red-400" id="username-error"&gt;&lt;/div&gt;&lt;!--/--&gt;&lt;/div&gt;&lt;div data-hk="s00002200"&gt;&lt;!--$--&gt;&lt;label data-hk="s0000220100" class="prose inline-block font-medium md:text-lg lg:text-xl mb-4 lg:mb-5" for="password"&gt;&lt;!--$--&gt;Password&lt;!--/--&gt; &lt;!--$--&gt;&lt;span data-hk="s0000220101" class="ml-1 text-red-600 dark:text-red-400"&gt;*&lt;/span&gt;&lt;!--/--&gt;&lt;/label&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;input data-hk="s00002202" type="password" name="password" required="" class="h-14 w-full rounded-2xl border-2 bg-white px-5 outline-none placeholder:text-slate-500 md:h-16 md:text-lg lg:h-[70px] lg:px-6 lg:text-xl dark:bg-gray-900 border-slate-200 hover:border-slate-300 focus:border-sky-600/50 dark:border-slate-800 dark:hover:border-slate-700 dark:focus:border-sky-400/50 " id="password" value="" aria-invalid="false" aria-errormessage="password-error"&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;div data-hk="s000022030" class="pt-4 text-sm text-red-500 md:text-base lg:pt-5 lg:text-lg dark:text-red-400" id="password-error"&gt;&lt;/div&gt;&lt;!--/--&gt;&lt;/div&gt;&lt;div data-hk="s000023" class="mt-4 flex justify-between"&gt;&lt;!--$--&gt;&lt;button data-hk="s0000240" class="items-center rounded-lg px-3 py-1.5 font-medium md:text-md lg:rounded-lg lg:px-4 lg:py-2 lg:text-lg bg-sky-600/10 text-sky-600 hover:bg-sky-600/20 dark:bg-sky-400/10 dark:text-sky-400 dark:hover:bg-sky-400/20 " type="button" loading="false" label="To Login" variant="secondary"&gt;To Login&lt;/button&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;button data-hk="s0000250" class="items-center rounded-lg px-3 py-1.5 font-medium md:text-md lg:rounded-lg lg:px-4 lg:py-2 lg:text-lg bg-sky-600 text-white hover:bg-sky-600/80 dark:bg-sky-400 dark:text-gray-900 dark:hover:bg-sky-400/80 " loading="false" label="Register" variant="primary" type="submit"&gt;Register&lt;/button&gt;&lt;!--/--&gt;&lt;/div&gt;&lt;/form&gt;&lt;!--/--&gt;&lt;/div&gt;&lt;/astro-island&gt;  &lt;/main&gt; &lt;footer class="z-10 mx-auto mt-12 flex w-screen justify-center border-t border-zinc-300 bg-slate-50/80 px-16 py-8 text-zinc-600" data-astro-source-file="/app/src/layout/Footer.astro" data-astro-source-loc="15:2"&gt; &lt;div class="flex flex-col" data-astro-source-file="/app/src/layout/Footer.astro" data-astro-source-loc="16:30"&gt; &lt;span class="text-md font-semibold" data-astro-source-file="/app/src/layout/Footer.astro" data-astro-source-loc="17:41"&gt; Made with ❤️ , 😓, 🥲 and&lt;/span&gt; &lt;ul class="flex flex-col items-center justify-center space-x-2" data-astro-source-file="/app/src/layout/Footer.astro" data-astro-source-loc="18:69"&gt; &lt;li&gt;&lt;a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="hover:underline"&gt;Astro&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href="https://solidjs.com" target="_blank" rel="noopener noreferrer" class="hover:underline"&gt;SolidJS&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href="https://tailwindcss.com" target="_blank" rel="noopener noreferrer" class="hover:underline"&gt;TailwindCSS&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href="https://daisyui.com" target="_blank" rel="noopener noreferrer" class="hover:underline"&gt;DaisyUI&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href="https://iconify.design" target="_blank" rel="noopener noreferrer" class="hover:underline"&gt;Iconify&lt;/a&gt;&lt;/li&gt; &lt;/ul&gt; &lt;/div&gt; &lt;/footer&gt; &lt;astro-dev-toolbar&gt;&lt;/astro-dev-toolbar&gt;&lt;/body&gt;&lt;/html&gt;</msg>
-<status status="PASS" starttime="20250706 14:13:50.231" endtime="20250706 14:13:50.241"/>
+&lt;/span&gt; &lt;/div&gt; &lt;div class="divider divider-horizontal before:bg-gray-500 after:bg-gray-500" data-astro-cid-lkziebym="" data-astro-source-file="/app/src/layout/NavBar.astro" data-astro-source-loc="18:8"&gt;&lt;/div&gt; &lt;style&gt;astro-island,astro-slot,astro-static-slot{display:contents}&lt;/style&gt;&lt;script data-astro-exec=""&gt;(()=&gt;{var e=async t=&gt;{await(await t())()};(self.Astro||(self.Astro={})).only=e;window.dispatchEvent(new Event("astro:only"));})();;(()=&gt;{var A=Object.defineProperty;var g=(i,o,a)=&gt;o in i?A(i,o,{enumerable:!0,configurable:!0,writable:!0,value:a}):i[o]=a;var l=(i,o,a)=&gt;g(i,typeof o!="symbol"?o+"":o,a);{let i={0:t=&gt;y(t),1:t=&gt;a(t),2:t=&gt;new RegExp(t),3:t=&gt;new Date(t),4:t=&gt;new Map(a(t)),5:t=&gt;new Set(a(t)),6:t=&gt;BigInt(t),7:t=&gt;new URL(t),8:t=&gt;new Uint8Array(t),9:t=&gt;new Uint16Array(t),10:t=&gt;new Uint32Array(t),11:t=&gt;1/0*t},o=t=&gt;{let[h,e]=t;return h in i?i[h](e):void 0},a=t=&gt;t.map(o),y=t=&gt;typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([h,e])=&gt;[h,o(e)]));class f extends HTMLElement{constructor(){super(...arguments);l(this,"Component");l(this,"hydrator");l(this,"hydrate",async()=&gt;{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let c=this.querySelectorAll("astro-slot"),n={},p=this.querySelectorAll("template[data-astro-template]");for(let r of p){let s=r.closest(this.tagName);s!=null&amp;&amp;s.isSameNode(this)&amp;&amp;(n[r.getAttribute("data-astro-template")||"default"]=r.innerHTML,r.remove())}for(let r of c){let s=r.closest(this.tagName);s!=null&amp;&amp;s.isSameNode(this)&amp;&amp;(n[r.getAttribute("name")||"default"]=r.innerHTML)}let u;try{u=this.hasAttribute("props")?y(JSON.parse(this.getAttribute("props"))):{}}catch(r){let s=this.getAttribute("component-url")||"&lt;unknown&gt;",v=this.getAttribute("component-export");throw v&amp;&amp;(s+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${s}`,this.getAttribute("props"),r),r}let d,m=this.hydrator(this);d=performance.now(),await m(this.Component,u,n,{client:this.getAttribute("client")}),d&amp;&amp;this.setAttribute("client-render-time",(performance.now()-d).toString()),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});l(this,"unmount",()=&gt;{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=&gt;{document.removeEventListener("DOMContentLoaded",e),c.disconnect(),this.childrenConnectedCallback()},c=new MutationObserver(()=&gt;{var n;((n=this.lastChild)==null?void 0:n.nodeType)===Node.COMMENT_NODE&amp;&amp;this.lastChild.nodeValue==="astro:end"&amp;&amp;(this.lastChild.remove(),e())});c.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&amp;&amp;await import(e),this.start()}async start(){let e=JSON.parse(this.getAttribute("opts")),c=this.getAttribute("client");if(Astro[c]===void 0){window.addEventListener(`astro:${c}`,()=&gt;this.start(),{once:!0});return}try{await Astro[c](async()=&gt;{let n=this.getAttribute("renderer-url"),[p,{default:u}]=await Promise.all([import(this.getAttribute("component-url")),n?import(n):()=&gt;()=&gt;{}]),d=this.getAttribute("component-export")||"default";if(!d.includes("."))this.Component=p[d];else{this.Component=p;for(let m of d.split("."))this.Component=this.Component[m]}return this.hydrator=u,this.hydrate},e,this)}catch(n){console.error(`[astro-island] Error hydrating ${this.getAttribute("component-url")}`,n)}}attributeChangedCallback(){this.hydrate()}}l(f,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",f)}})();&lt;/script&gt;&lt;astro-island uid="2rwUXr" component-url="/src/components/navbar/TodoListItems.tsx" component-export="default" renderer-url="/node_modules/.vite/deps/@astrojs_solid-js_client__js.js?v=48d96e39" props="{&amp;quot;data-astro-cid-lkziebym&amp;quot;:[0,true]}" client="only" before-hydration-url="/@id/astro:scripts/before-hydration.js" opts="{&amp;quot;name&amp;quot;:&amp;quot;TodoListItems&amp;quot;,&amp;quot;value&amp;quot;:&amp;quot;solid-js&amp;quot;}" client-render-time="0.3999999985098839"&gt;&lt;div&gt;&lt;!--$--&gt;&lt;span class="px-4 font-semibold"&gt;&lt;iconify-icon icon="fluent:person-accounts-20-filled" class="mr-1 align-bottom text-2xl"&gt;&lt;/iconify-icon&gt;Login or sign up to get started&lt;/span&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;!--/--&gt;&lt;/div&gt;&lt;/astro-island&gt; &lt;/div&gt; &lt;astro-island uid="ZcmYfH" component-url="/src/components/navbar/ProfileItems.tsx" component-export="default" renderer-url="/node_modules/.vite/deps/@astrojs_solid-js_client__js.js?v=48d96e39" props="{&amp;quot;data-astro-cid-lkziebym&amp;quot;:[0,true]}" client="only" before-hydration-url="/@id/astro:scripts/before-hydration.js" opts="{&amp;quot;name&amp;quot;:&amp;quot;ProfileItems&amp;quot;,&amp;quot;value&amp;quot;:&amp;quot;solid-js&amp;quot;}" client-render-time="0.3999999985098839"&gt;&lt;/astro-island&gt; &lt;/div&gt; &lt;/nav&gt;  &lt;main class="flex grow justify-center p-8" data-astro-cid-4jmloj5z="" data-astro-source-file="/app/src/layout/BaseLayout.astro" data-astro-source-loc="26:48"&gt;  &lt;script data-astro-exec=""&gt;(()=&gt;{var l=(s,i,o)=&gt;{let r=async()=&gt;{await(await s())()},t=typeof i.value=="object"?i.value:void 0,c={rootMargin:t==null?void 0:t.rootMargin},n=new IntersectionObserver(e=&gt;{for(let a of e)if(a.isIntersecting){n.disconnect(),r();break}},c);for(let e of o.children)n.observe(e)};(self.Astro||(self.Astro={})).visible=l;window.dispatchEvent(new Event("astro:visible"));})();&lt;/script&gt;&lt;script data-astro-exec=""&gt;window._$HY||(e=&gt;{let t=e=&gt;e&amp;&amp;e.hasAttribute&amp;&amp;(e.hasAttribute("data-hk")?e:t(e.host&amp;&amp;e.host.nodeType?e.host:e.parentNode));["click", "input"].forEach((o=&gt;document.addEventListener(o,(o=&gt;{if(!e.events)return;let s=t(o.composedPath&amp;&amp;o.composedPath()[0]||o.target);s&amp;&amp;!e.completed.has(s)&amp;&amp;e.events.push([s,o])}))))})(_$HY={events:[],completed:new WeakSet,r:{},fe(){}});&lt;/script&gt;&lt;!--xs--&gt;&lt;astro-island uid="Z1JgukC" data-solid-render-id="s0" component-url="/src/components/forms/RegisterForm.tsx" component-export="default" renderer-url="/node_modules/.vite/deps/@astrojs_solid-js_client__js.js?v=48d96e39" props="{}" client="visible" before-hydration-url="/@id/astro:scripts/before-hydration.js" opts="{&amp;quot;name&amp;quot;:&amp;quot;RegisterForm&amp;quot;,&amp;quot;value&amp;quot;:true}" server-render-time="1.729417000002286" await-children="" client-render-time="0.8999999985098839"&gt;&lt;div data-hk="s00000" class="flex max-w-xl flex-col justify-center"&gt;&lt;div class="container prose mb-8"&gt;&lt;h1&gt;Register an account&lt;/h1&gt;&lt;p&gt;An account is needed to use the Todo Manager.&lt;/p&gt;&lt;p&gt;In case you already have an account, please login through &lt;a href="/login"&gt;here&lt;/a&gt; or through the button below on the left.&lt;/p&gt;&lt;/div&gt;&lt;!--$--&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;form data-hk="s000020" novalidate="" data-testid="register-form"&gt;&lt;div data-hk="s00002100"&gt;&lt;!--$--&gt;&lt;label data-hk="s0000210100" class="prose inline-block font-medium md:text-lg lg:text-xl mb-4 lg:mb-5" for="username"&gt;&lt;!--$--&gt;Username&lt;!--/--&gt; &lt;!--$--&gt;&lt;!--/--&gt;&lt;/label&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;input data-hk="s00002102" type="text" name="username" class="h-14 w-full rounded-2xl border-2 bg-white px-5 outline-none placeholder:text-slate-500 md:h-16 md:text-lg lg:h-[70px] lg:px-6 lg:text-xl dark:bg-gray-900 border-slate-200 hover:border-slate-300 focus:border-sky-600/50 dark:border-slate-800 dark:hover:border-slate-700 dark:focus:border-sky-400/50 " id="username" value="" aria-invalid="false" aria-errormessage="username-error"&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;!--/--&gt;&lt;/div&gt;&lt;div data-hk="s00002200"&gt;&lt;!--$--&gt;&lt;label data-hk="s0000220100" class="prose inline-block font-medium md:text-lg lg:text-xl mb-4 lg:mb-5" for="password"&gt;&lt;!--$--&gt;Password&lt;!--/--&gt; &lt;!--$--&gt;&lt;!--/--&gt;&lt;/label&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;input data-hk="s00002202" type="password" name="password" class="h-14 w-full rounded-2xl border-2 bg-white px-5 outline-none placeholder:text-slate-500 md:h-16 md:text-lg lg:h-[70px] lg:px-6 lg:text-xl dark:bg-gray-900 border-slate-200 hover:border-slate-300 focus:border-sky-600/50 dark:border-slate-800 dark:hover:border-slate-700 dark:focus:border-sky-400/50 " id="password" value="" aria-invalid="false" aria-errormessage="password-error"&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;!--/--&gt;&lt;/div&gt;&lt;div data-hk="s000023" class="mt-4 flex justify-between"&gt;&lt;!--$--&gt;&lt;button data-hk="s0000240" class="items-center rounded-lg px-3 py-1.5 font-medium md:text-md lg:rounded-lg lg:px-4 lg:py-2 lg:text-lg bg-sky-600/10 text-sky-600 hover:bg-sky-600/20 dark:bg-sky-400/10 dark:text-sky-400 dark:hover:bg-sky-400/20 " type="button" loading="false" label="To Login" variant="secondary"&gt;To Login&lt;/button&gt;&lt;!--/--&gt;&lt;!--$--&gt;&lt;button data-hk="s0000250" class="items-center rounded-lg px-3 py-1.5 font-medium md:text-md lg:rounded-lg lg:px-4 lg:py-2 lg:text-lg bg-sky-600 text-white hover:bg-sky-600/80 dark:bg-sky-400 dark:text-gray-900 dark:hover:bg-sky-400/80 " loading="false" label="Register" variant="primary" type="submit"&gt;Register&lt;/button&gt;&lt;!--/--&gt;&lt;/div&gt;&lt;/form&gt;&lt;!--/--&gt;&lt;/div&gt;&lt;/astro-island&gt;  &lt;/main&gt; &lt;footer class="z-10 mx-auto mt-12 flex w-screen justify-center border-t border-zinc-300 bg-slate-50/80 px-16 py-8 text-zinc-600" data-astro-source-file="/app/src/layout/Footer.astro" data-astro-source-loc="15:2"&gt; &lt;div class="flex flex-col" data-astro-source-file="/app/src/layout/Footer.astro" data-astro-source-loc="16:30"&gt; &lt;span class="text-md font-semibold" data-astro-source-file="/app/src/layout/Footer.astro" data-astro-source-loc="17:41"&gt; Made with ❤️ , 😓, 🥲 and&lt;/span&gt; &lt;ul class="flex flex-col items-center justify-center space-x-2" data-astro-source-file="/app/src/layout/Footer.astro" data-astro-source-loc="18:69"&gt; &lt;li&gt;&lt;a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="hover:underline"&gt;Astro&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href="https://solidjs.com" target="_blank" rel="noopener noreferrer" class="hover:underline"&gt;SolidJS&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href="https://tailwindcss.com" target="_blank" rel="noopener noreferrer" class="hover:underline"&gt;TailwindCSS&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href="https://daisyui.com" target="_blank" rel="noopener noreferrer" class="hover:underline"&gt;DaisyUI&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href="https://iconify.design" target="_blank" rel="noopener noreferrer" class="hover:underline"&gt;Iconify&lt;/a&gt;&lt;/li&gt; &lt;/ul&gt; &lt;/div&gt; &lt;/footer&gt; &lt;astro-dev-toolbar&gt;&lt;/astro-dev-toolbar&gt;&lt;/body&gt;&lt;/html&gt;</msg>
+<doc>Logs and returns the HTML source of the current page or frame.</doc>
+<status status="PASS" start="2025-07-07T09:42:07.077813" elapsed="0.007121"/>
 </kw>
-<kw name="Page Should Contain Element" library="SeleniumLibrary">
+<kw name="Page Should Contain Element" owner="SeleniumLibrary">
+<msg time="2025-07-07T09:42:07.092163" level="INFO">Current page contains element 'css:form[data-testid="register-form"]'.</msg>
 <arg>css:form[data-testid="register-form"]</arg>
 <doc>Verifies that element ``locator`` is found on the current page.</doc>
-<msg timestamp="20250706 14:13:50.250" level="INFO">Current page contains element 'css:form[data-testid="register-form"]'.</msg>
-<status status="PASS" starttime="20250706 14:13:50.241" endtime="20250706 14:13:50.250"/>
+<status status="PASS" start="2025-07-07T09:42:07.085033" elapsed="0.007212"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:49.091" endtime="20250706 14:13:50.250"/>
+<doc>Navigates to the registration page</doc>
+<status status="PASS" start="2025-07-07T09:42:05.956579" elapsed="1.135748"/>
 </kw>
-<kw name="Fill Register Form" library="auth_keywords">
-<arg>${username}</arg>
-<arg>${password}</arg>
-<doc>Fills the registration form with provided credentials</doc>
-<kw name="Wait For Element And Input Text" library="common">
+<kw name="Fill Register Form" owner="auth_keywords">
+<kw name="Wait For Element And Input Text" owner="common">
+<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
+<arg>${locator}</arg>
+<arg>${timeout}</arg>
+<doc>Waits until the element ``locator`` is visible.</doc>
+<status status="PASS" start="2025-07-07T09:42:07.093015" elapsed="0.015288"/>
+</kw>
+<kw name="Clear Element Text" owner="SeleniumLibrary">
+<arg>${locator}</arg>
+<doc>Clears the value of the text-input-element identified by ``locator``.</doc>
+<status status="PASS" start="2025-07-07T09:42:07.108458" elapsed="0.023818"/>
+</kw>
+<kw name="Input Text" owner="SeleniumLibrary">
+<msg time="2025-07-07T09:42:07.132599" level="INFO">Typing text '' into text field 'css:input[name="username"]'.</msg>
+<arg>${locator}</arg>
+<arg>${text}</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<status status="PASS" start="2025-07-07T09:42:07.132425" elapsed="0.032990"/>
+</kw>
 <arg>css:input[name="username"]</arg>
 <arg>${username}</arg>
 <doc>Waits for element to be visible and inputs text</doc>
-<kw name="Wait Until Element Is Visible" library="SeleniumLibrary">
+<status status="PASS" start="2025-07-07T09:42:07.092767" elapsed="0.072736"/>
+</kw>
+<kw name="Wait For Element And Input Text" owner="common">
+<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
 <arg>${locator}</arg>
 <arg>${timeout}</arg>
 <doc>Waits until the element ``locator`` is visible.</doc>
-<status status="PASS" starttime="20250706 14:13:50.250" endtime="20250706 14:13:50.267"/>
+<status status="PASS" start="2025-07-07T09:42:07.165948" elapsed="0.009329"/>
 </kw>
-<kw name="Clear Element Text" library="SeleniumLibrary">
+<kw name="Clear Element Text" owner="SeleniumLibrary">
 <arg>${locator}</arg>
 <doc>Clears the value of the text-input-element identified by ``locator``.</doc>
-<status status="PASS" starttime="20250706 14:13:50.267" endtime="20250706 14:13:50.288"/>
+<status status="PASS" start="2025-07-07T09:42:07.175404" elapsed="0.012663"/>
 </kw>
-<kw name="Input Text" library="SeleniumLibrary">
+<kw name="Input Text" owner="SeleniumLibrary">
+<msg time="2025-07-07T09:42:07.188286" level="INFO">Typing text 'RobotPass123!' into text field 'css:input[name="password"]'.</msg>
 <arg>${locator}</arg>
 <arg>${text}</arg>
 <doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
-<msg timestamp="20250706 14:13:50.289" level="INFO">Typing text 'testuser1751800429' into text field 'css:input[name="username"]'.</msg>
-<status status="PASS" starttime="20250706 14:13:50.289" endtime="20250706 14:13:50.384"/>
+<status status="PASS" start="2025-07-07T09:42:07.188161" elapsed="0.125382"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:50.250" endtime="20250706 14:13:50.384"/>
-</kw>
-<kw name="Wait For Element And Input Text" library="common">
 <arg>css:input[name="password"]</arg>
 <arg>${password}</arg>
 <doc>Waits for element to be visible and inputs text</doc>
-<kw name="Wait Until Element Is Visible" library="SeleniumLibrary">
+<status status="PASS" start="2025-07-07T09:42:07.165692" elapsed="0.147939"/>
+</kw>
+<arg>${username}</arg>
+<arg>${password}</arg>
+<doc>Fills the registration form with provided credentials</doc>
+<status status="PASS" start="2025-07-07T09:42:07.092482" elapsed="0.221189"/>
+</kw>
+<kw name="Submit Register Form" owner="auth_keywords">
+<kw name="Wait For Element And Click" owner="common">
+<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
 <arg>${locator}</arg>
 <arg>${timeout}</arg>
 <doc>Waits until the element ``locator`` is visible.</doc>
-<status status="PASS" starttime="20250706 14:13:50.384" endtime="20250706 14:13:50.394"/>
+<status status="PASS" start="2025-07-07T09:42:07.314125" elapsed="0.010460"/>
 </kw>
-<kw name="Clear Element Text" library="SeleniumLibrary">
-<arg>${locator}</arg>
-<doc>Clears the value of the text-input-element identified by ``locator``.</doc>
-<status status="PASS" starttime="20250706 14:13:50.394" endtime="20250706 14:13:50.407"/>
-</kw>
-<kw name="Input Text" library="SeleniumLibrary">
-<arg>${locator}</arg>
-<arg>${text}</arg>
-<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
-<msg timestamp="20250706 14:13:50.407" level="INFO">Typing text 'RobotPass123!' into text field 'css:input[name="password"]'.</msg>
-<status status="PASS" starttime="20250706 14:13:50.407" endtime="20250706 14:13:50.483"/>
-</kw>
-<status status="PASS" starttime="20250706 14:13:50.384" endtime="20250706 14:13:50.483"/>
-</kw>
-<status status="PASS" starttime="20250706 14:13:50.250" endtime="20250706 14:13:50.483"/>
-</kw>
-<kw name="Submit Register Form" library="auth_keywords">
-<doc>Submits the registration form</doc>
-<kw name="Wait For Element And Click" library="common">
-<arg>css:button[type="submit"]</arg>
-<doc>Waits for element to be visible and clickable, then clicks it</doc>
-<kw name="Wait Until Element Is Visible" library="SeleniumLibrary">
-<arg>${locator}</arg>
-<arg>${timeout}</arg>
-<doc>Waits until the element ``locator`` is visible.</doc>
-<status status="PASS" starttime="20250706 14:13:50.484" endtime="20250706 14:13:50.496"/>
-</kw>
-<kw name="Wait Until Element Is Enabled" library="SeleniumLibrary">
+<kw name="Wait Until Element Is Enabled" owner="SeleniumLibrary">
 <arg>${locator}</arg>
 <arg>${timeout}</arg>
 <doc>Waits until the element ``locator`` is enabled.</doc>
-<status status="PASS" starttime="20250706 14:13:50.496" endtime="20250706 14:13:50.507"/>
+<status status="PASS" start="2025-07-07T09:42:07.324720" elapsed="0.011951"/>
 </kw>
-<kw name="Click Element" library="SeleniumLibrary">
+<kw name="Click Element" owner="SeleniumLibrary">
+<msg time="2025-07-07T09:42:07.336969" level="INFO">Clicking element 'css:button[type="submit"]'.</msg>
 <arg>${locator}</arg>
 <doc>Click the element identified by ``locator``.</doc>
-<msg timestamp="20250706 14:13:50.507" level="INFO">Clicking element 'css:button[type="submit"]'.</msg>
-<status status="PASS" starttime="20250706 14:13:50.507" endtime="20250706 14:13:50.538"/>
+<status status="PASS" start="2025-07-07T09:42:07.336815" elapsed="0.036041"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:50.484" endtime="20250706 14:13:50.538"/>
+<arg>css:button[type="submit"]</arg>
+<doc>Waits for element to be visible and clickable, then clicks it</doc>
+<status status="PASS" start="2025-07-07T09:42:07.313959" elapsed="0.058980"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:50.483" endtime="20250706 14:13:50.538"/>
+<doc>Submits the registration form</doc>
+<status status="PASS" start="2025-07-07T09:42:07.313793" elapsed="0.059177"/>
 </kw>
-<kw name="Sleep" library="BuiltIn">
-<arg>2s</arg>
-<doc>Pauses the test executed for the given time.</doc>
-<msg timestamp="20250706 14:13:52.539" level="INFO">Slept 2 seconds</msg>
-<status status="PASS" starttime="20250706 14:13:50.538" endtime="20250706 14:13:52.539"/>
+<kw name="Verify Registration Error Message" owner="auth_keywords">
+<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
+<msg time="2025-07-07T09:42:28.186797" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-19.png"&gt;&lt;img src="selenium-screenshot-19.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg time="2025-07-07T09:42:28.187413" level="FAIL">Element 'css:[data-testid="error-message"]' not visible after 15 seconds.</msg>
+<arg>css:[data-testid="error-message"]</arg>
+<arg>${MEDIUM_TIMEOUT}</arg>
+<doc>Waits until the element ``locator`` is visible.</doc>
+<status status="FAIL" start="2025-07-07T09:42:07.373272" elapsed="20.817226">Element 'css:[data-testid="error-message"]' not visible after 15 seconds.</status>
 </kw>
-<kw name="Get Location" library="SeleniumLibrary">
-<var>${current_url}</var>
-<doc>Returns the current browser window URL.</doc>
-<msg timestamp="20250706 14:13:52.546" level="INFO">${current_url} = http://localhost:4321/todo-lists</msg>
-<status status="PASS" starttime="20250706 14:13:52.539" endtime="20250706 14:13:52.546"/>
+<kw name="Verify Element Contains Text" owner="common">
+<arg>css:[data-testid="error-message"]</arg>
+<arg>${expected_message}</arg>
+<doc>Verifies that an element contains expected text</doc>
+<status status="NOT RUN" start="2025-07-07T09:42:28.191076" elapsed="0.000040"/>
 </kw>
-<kw name="Log" library="BuiltIn">
-<arg>Current URL after registration: ${current_url}</arg>
-<doc>Logs the given message with the given level.</doc>
-<msg timestamp="20250706 14:13:52.547" level="INFO">Current URL after registration: http://localhost:4321/todo-lists</msg>
-<status status="PASS" starttime="20250706 14:13:52.547" endtime="20250706 14:13:52.547"/>
+<arg>${expected_error}</arg>
+<doc>Verifies that registration error message is displayed</doc>
+<status status="FAIL" start="2025-07-07T09:42:07.373083" elapsed="20.818127">Element 'css:[data-testid="error-message"]' not visible after 15 seconds.</status>
 </kw>
-<kw name="Wait Until Location Contains" library="SeleniumLibrary">
-<arg>/todo-lists</arg>
-<arg>${EXPLICIT_WAIT}</arg>
-<doc>Waits until the current URL contains ``expected``.</doc>
-<status status="PASS" starttime="20250706 14:13:52.547" endtime="20250706 14:13:52.551"/>
-</kw>
-<kw name="Page Should Contain Element" library="SeleniumLibrary">
-<arg>css:[data-testid="todo-lists-page"]</arg>
-<doc>Verifies that element ``locator`` is found on the current page.</doc>
-<msg timestamp="20250706 14:13:52.558" level="INFO">Current page contains element 'css:[data-testid="todo-lists-page"]'.</msg>
-<status status="PASS" starttime="20250706 14:13:52.551" endtime="20250706 14:13:52.558"/>
-</kw>
-<status status="PASS" starttime="20250706 14:13:49.091" endtime="20250706 14:13:52.558"/>
-</kw>
-<kw name="Verify User Is Logged In" library="auth_keywords">
-<doc>Verifies that user is successfully logged in</doc>
-<kw name="Location Should Contain" library="SeleniumLibrary">
-<arg>/todo-lists</arg>
+<kw name="Location Should Contain" owner="SeleniumLibrary">
+<arg>/register</arg>
 <doc>Verifies that the current URL contains ``expected``.</doc>
-<msg timestamp="20250706 14:13:52.560" level="INFO">Current location contains '/todo-lists'.</msg>
-<status status="PASS" starttime="20250706 14:13:52.559" endtime="20250706 14:13:52.560"/>
+<status status="NOT RUN" start="2025-07-07T09:42:28.191385" elapsed="0.000013"/>
 </kw>
-<kw name="Page Should Contain Element" library="SeleniumLibrary">
-<arg>css:[data-testid="todo-lists-page"]</arg>
-<doc>Verifies that element ``locator`` is found on the current page.</doc>
-<msg timestamp="20250706 14:13:52.564" level="INFO">Current page contains element 'css:[data-testid="todo-lists-page"]'.</msg>
-<status status="PASS" starttime="20250706 14:13:52.560" endtime="20250706 14:13:52.564"/>
+<arg>${EMPTY_USERNAME}</arg>
+<arg>${TEST_PASSWORD_1}</arg>
+<arg>Username cannot be empty</arg>
+<doc>Attempts registration with invalid data and verifies failure</doc>
+<status status="FAIL" start="2025-07-07T09:42:05.956393" elapsed="22.235048">Element 'css:[data-testid="error-message"]' not visible after 15 seconds.</status>
 </kw>
-<kw name="Page Should Contain Element" library="SeleniumLibrary">
-<arg>css:[data-testid="logout-button"]</arg>
-<doc>Verifies that element ``locator`` is found on the current page.</doc>
-<msg timestamp="20250706 14:13:52.568" level="INFO">Current page contains element 'css:[data-testid="logout-button"]'.</msg>
-<status status="PASS" starttime="20250706 14:13:52.564" endtime="20250706 14:13:52.568"/>
-</kw>
-<status status="PASS" starttime="20250706 14:13:52.558" endtime="20250706 14:13:52.568"/>
-</kw>
-<kw name="Close Browser Session" library="common" type="TEARDOWN">
-<doc>Closes the browser session</doc>
-<kw name="Close All Browsers" library="SeleniumLibrary">
+<kw name="Close Browser Session" owner="common" type="TEARDOWN">
+<kw name="Close All Browsers" owner="SeleniumLibrary">
 <doc>Closes all open browsers and resets the browser cache.</doc>
-<status status="PASS" starttime="20250706 14:13:52.568" endtime="20250706 14:13:52.676"/>
+<status status="PASS" start="2025-07-07T09:42:28.191890" elapsed="0.104206"/>
 </kw>
-<status status="PASS" starttime="20250706 14:13:52.568" endtime="20250706 14:13:52.676"/>
+<doc>Closes the browser session</doc>
+<status status="PASS" start="2025-07-07T09:42:28.191656" elapsed="0.104515"/>
 </kw>
-<doc>Test that a user can register with valid credentials</doc>
+<doc>Test that registration fails when username is empty</doc>
 <tag>auth</tag>
-<tag>happy_path</tag>
+<tag>negative</tag>
 <tag>registration</tag>
-<tag>smoke</tag>
-<status status="PASS" starttime="20250706 14:13:46.009" endtime="20250706 14:13:52.676"/>
+<status status="FAIL" start="2025-07-07T09:42:03.110937" elapsed="25.185269">Element 'css:[data-testid="error-message"]' not visible after 15 seconds.</status>
 </test>
 <doc>Authentication related test cases</doc>
-<status status="PASS" starttime="20250706 14:13:01.021" endtime="20250706 14:13:52.677"/>
+<status status="FAIL" start="2025-07-07T09:41:08.694754" elapsed="79.601826"/>
 </suite>
 <statistics>
 <total>
-<stat pass="1" fail="0" skip="0">All Tests</stat>
+<stat pass="0" fail="1" skip="0">All Tests</stat>
 </total>
 <tag>
-<stat pass="1" fail="0" skip="0">auth</stat>
-<stat pass="1" fail="0" skip="0">happy_path</stat>
-<stat pass="1" fail="0" skip="0">registration</stat>
-<stat pass="1" fail="0" skip="0">smoke</stat>
+<stat pass="0" fail="1" skip="0">auth</stat>
+<stat pass="0" fail="1" skip="0">negative</stat>
+<stat pass="0" fail="1" skip="0">registration</stat>
 </tag>
 <suite>
-<stat pass="1" fail="0" skip="0" id="s1" name="Auth Tests">Auth Tests</stat>
+<stat name="Auth Tests" id="s1" pass="0" fail="1" skip="0">Auth Tests</stat>
 </suite>
 </statistics>
 <errors>

@@ -1,4 +1,4 @@
-import { createForm, required, type SubmitHandler } from '@modular-forms/solid'
+import { createForm, required, type SubmitHandler, validate } from '@modular-forms/solid'
 import { TextInput } from './TextInput'
 import userState from '../../state/userState'
 import { ActionButton } from '../common/ActionButton'
@@ -12,13 +12,17 @@ type LoginForm = {
 }
 
 export default function LoginForm() {
-  const [loginForm, { Form, Field }] = createForm<LoginForm>()
+  const [loginForm, { Form, Field }] = createForm<LoginForm>({
+    validateOn: 'submit',
+    revalidateOn: 'touched'
+  })
   const [user, setUser] = userState
   const [loginError, setLoginError] = createSignal<string | undefined>()
 
   const handleSubmit: SubmitHandler<LoginForm> = (values, event) => {
     event.preventDefault()
     console.log('submitting login form with values:', values)
+    
     userActions
       .login(values)
       .then((userAuthData) => {
@@ -64,7 +68,6 @@ export default function LoginForm() {
                   type="text"
                   value={field.value}
                   error={field.error}
-                  required
                 />
               </>
             )}
@@ -81,7 +84,6 @@ export default function LoginForm() {
                   type="password"
                   value={field.value}
                   error={field.error}
-                  required
                 />
               </>
             )}
